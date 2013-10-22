@@ -1,0 +1,21 @@
+
+File Structure
+---
+
+Entries in brackets are examples.
+
+root
+- config.yml
+- scripts
+  - main.rb
+  - [minish_village.rb]
+- entities
+- characters
+  - [festari.yml]
+- maps
+- music
+  - [minish_village.ogg]
+- sprites
+  - [maptiles.png]
+  - [characters.gif]
+
