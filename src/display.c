@@ -1,4 +1,4 @@
-#include "display.h"
+#include "allegro_wrap.h"
 #include <ruby.h>
 #include <allegro5/allegro.h>
 
@@ -19,6 +19,10 @@ VALUE display_new(VALUE cls, VALUE size)
 	al_reset_new_display_options();
 	al_set_new_display_flags(ALLEGRO_WINDOWED);
 	ALLEGRO_DISPLAY *display = al_create_display(width, height);
+	
+	if (!display)
+		rb_raise(rb_eStandardError, "Could not open display");
+	
 	VALUE obj = rb_data_object_alloc(cls, display, NULL, display_free);
 	return obj;
 }
@@ -44,6 +48,8 @@ VALUE display_title_set(VALUE self, VALUE title)
 */
 VALUE display_activate(VALUE self)
 {
+	// rb_p(self);
+	
 	ALLEGRO_DISPLAY *display = RDATA(self)->data;
 	al_set_target_backbuffer(display);
 	return Qnil;
@@ -86,6 +92,8 @@ VALUE display_size(VALUE self)
 
 void Init_display()
 {
+	// class Display
+	
 	VALUE display_c = rb_define_class("Display", rb_cObject);
 	VALUE draw_target_m = rb_const_get(rb_cObject, rb_intern("DrawTarget"));
 	rb_include_module(display_c, draw_target_m);
@@ -97,6 +105,7 @@ void Init_display()
 	rb_define_method(display_c, "clear", display_clear, 0);
 	rb_define_method(display_c, "flip", display_flip, 0);
 	rb_define_method(display_c, "size", display_size, 0);
+	rb_attr(display_c, rb_intern("events"), true, false, false);
 	
 	// TODO
 	// title

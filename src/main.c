@@ -1,17 +1,17 @@
 #include <stdlib.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <ruby.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
-#include "display.h"
-#include "bitmap.h"
+#include "allegro_wrap.h"
 
 
 void check_error(int error)
 {
 	if (error)
 	{
-		printf("Ruby error\n");
+		printf("Fatal error\n");
 		abort();
 	}
 }
@@ -26,15 +26,15 @@ int main(int argc, char **argv)
 	ruby_init_loadpath();
 	
 	rb_require("./lib/bitrpg");
-	Init_display();
-	Init_bitmap();
+	Init_allegro_wrap();
 	
 	// Initialize Allegro
 	al_init();
 	al_init_image_addon();
+	al_install_keyboard();
 	
 	// Launch script
-	rb_load_protect(rb_str_new_cstr("./bin/main.rb"), 0, &error);
+	rb_load_protect(rb_str_new_cstr("./bin/main.rb"), false, &error);
 	check_error(error);
 	
 	// Cleanup

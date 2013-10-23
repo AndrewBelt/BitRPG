@@ -1,6 +1,10 @@
-#include "bitmap.h"
+#include "allegro_wrap.h"
+#include <stdbool.h>
 #include <ruby.h>
 #include <allegro5/allegro.h>
+
+
+static VALUE bitmap_c;
 
 
 static
@@ -17,7 +21,9 @@ VALUE bitmap_new(VALUE cls, VALUE size)
 	int height = NUM2INT(rb_ary_entry(size, 1));
 	
 	ALLEGRO_BITMAP *bitmap = al_create_bitmap(width, height);
-	printf("bitmap flags: %d\n", al_get_bitmap_flags(bitmap));
+	
+	if (!bitmap)
+		rb_raise(rb_eStandardError, "Could not create bitmap");
 	
 	VALUE obj = rb_data_object_alloc(cls, bitmap, NULL, bitmap_free);
 	return obj;
@@ -26,7 +32,12 @@ VALUE bitmap_new(VALUE cls, VALUE size)
 
 VALUE bitmap_load(VALUE cls, VALUE filename)
 {
-	ALLEGRO_BITMAP *bitmap = al_load_bitmap(rb_string_value_cstr(&filename));
+	char *filename_str = rb_string_value_cstr(&filename);
+	ALLEGRO_BITMAP *bitmap = al_load_bitmap(filename_str);
+	
+	if (!bitmap)
+		rb_raise(rb_eIOError, "Could not open bitmap");
+	
 	VALUE obj = rb_data_object_alloc(cls, bitmap, NULL, bitmap_free);
 	return obj;
 }
@@ -88,9 +99,30 @@ VALUE bitmap_blit(VALUE self, VALUE position, VALUE zoom)
 }
 
 
-void Init_bitmap()
+VALUE bitmap_sub(VALUE self, VALUE position, VALUE size)
 {
-	VALUE bitmap_c = rb_define_class("Bitmap", rb_cObject);
+	ALLEGRO_BITMAP *bitmap = RDATA(self)->data;
+	int x = NUM2INT(rb_ary_entry(position, 0));
+	int y = NUM2INT(rb_ary_entry(position, 1));
+	int w = NUM2INT(rb_ary_entry(size, 0));
+	int h = NUM2INT(rb_ary_entry(position, 1));
+	
+	ALLEGRO_BITMAP *bitmap_sub = al_create_sub_bitmap(bitmap, x, y, w, h);
+	
+	if (!bitmap_sub)
+		rb_raise(rb_eStandardError, "Could not create sub bitmap");
+	
+	VALUE obj = rb_data_object_alloc(bitmap_c, bitmap_sub, NULL, bitmap_free);
+	rb_iv_set(obj, "@parent", self);
+	return obj;
+}
+
+
+void Init_graphics()
+{
+	// class Bitmap
+	
+	bitmap_c = rb_define_class("Bitmap", rb_cObject);
 	VALUE draw_target_m = rb_const_get(rb_cObject, rb_intern("DrawTarget"));
 	rb_include_module(bitmap_c, draw_target_m);
 	rb_define_singleton_method(bitmap_c, "new", bitmap_new, 1);
@@ -100,6 +132,8 @@ void Init_bitmap()
 	rb_define_method(bitmap_c, "clear", bitmap_clear, 0);
 	rb_define_method(bitmap_c, "size", bitmap_size, 0);
 	rb_define_method(bitmap_c, "blit", bitmap_blit, 2);
+	rb_define_method(bitmap_c, "sub", bitmap_sub, 2);
+	rb_attr(bitmap_c, rb_intern("parent"), true, false, false);
 	
 	// TODO
 	// draw
