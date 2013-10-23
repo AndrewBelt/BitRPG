@@ -12,6 +12,17 @@ VALUE event_new(VALUE cls)
 }
 
 
+VALUE event_ifclose(VALUE self)
+{
+	ALLEGRO_EVENT *event = RDATA(self)->data;
+	
+	if (event->type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+		rb_yield(Qnil);
+	
+	return Qnil;
+}
+
+
 void event_queue_free(void *p)
 {
 	if (p)
@@ -30,22 +41,25 @@ VALUE event_queue_new(VALUE cls)
 
 VALUE event_queue_each(VALUE self)
 {
-	if (!rb_block_given_p())
-		return Qnil;
-	
 	ALLEGRO_EVENT_QUEUE *queue = RDATA(self)->data;
+	
 	
 	while (1)
 	{
-		ALLEGRO_EVENT *event = malloc(sizeof(event));
-		int has_event = al_get_next_event(queue, event);
+		ALLEGRO_EVENT event;
+		int has_event = al_get_next_event(queue, &event);
+		printf("%d\t%d\n", (int) sizeof(ALLEGRO_EVENT), (int) sizeof(event));
 		
 		if (!has_event)
 			break;
 		
-		VALUE event_obj = rb_data_object_alloc(event_c, event, NULL, soft_free);
+		// Copy the event into heap-allocated memory until this
+		// forum post is resolved.
+		// https://www.allegro.cc/forums/thread/613411
+		ALLEGRO_EVENT *event_p = malloc(sizeof(ALLEGRO_EVENT));
+		memcpy(event_p, &event, sizeof(ALLEGRO_EVENT));
+		VALUE event_obj = rb_data_object_alloc(event_c, event_p, NULL, soft_free);
 		rb_yield_values(1, event_obj);
-		break;
 	}
 	
 	return Qnil;
@@ -76,7 +90,7 @@ void Init_events()
 	event_c = rb_define_class("Event", rb_cObject);
 	rb_define_singleton_method(event_c, "new", event_new, 0);
 	
-	// rb_define_method(event_c, "ifclose", event_ifclose, 0);
+	rb_define_method(event_c, "ifclose", event_ifclose, 0);
 	
 	// class EventQueue
 	
