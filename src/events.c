@@ -1,9 +1,11 @@
 #include "allegro_wrap.h"
 #include <ruby.h>
+#include <ruby/encoding.h>
 #include <allegro5/allegro.h>
 
 
 static VALUE event_c;
+static rb_encoding *utf8_encoding;
 
 
 VALUE event_new(VALUE cls)
@@ -18,6 +20,39 @@ VALUE event_ifclose(VALUE self)
 	
 	if (event->type == ALLEGRO_EVENT_DISPLAY_CLOSE)
 		rb_yield(Qnil);
+	
+	return Qnil;
+}
+
+
+VALUE event_ifkeydown(VALUE self)
+{
+	ALLEGRO_EVENT *event = RDATA(self)->data;
+	
+	if (event->type == ALLEGRO_EVENT_KEY_DOWN)
+	{
+		// TODO
+		// Convert these to symbols
+		
+		VALUE keycode = INT2NUM(event->keyboard.keycode);
+		rb_yield(keycode);
+	}
+	
+	return Qnil;
+}
+
+
+VALUE event_ifkeychar(VALUE self)
+{
+	ALLEGRO_EVENT *event = RDATA(self)->data;
+	
+	if (event->type == ALLEGRO_EVENT_KEY_CHAR)
+	{
+		VALUE unichar = rb_enc_uint_chr(event->keyboard.unichar, utf8_encoding);
+		VALUE keycode = INT2NUM(event->keyboard.keycode);
+		VALUE repeat = event->keyboard.repeat ? Qtrue : Qfalse;
+		rb_yield_values(3, unichar, keycode, repeat);
+	}
 	
 	return Qnil;
 }
@@ -48,7 +83,6 @@ VALUE event_queue_each(VALUE self)
 	{
 		ALLEGRO_EVENT event;
 		int has_event = al_get_next_event(queue, &event);
-		printf("%d\t%d\n", (int) sizeof(ALLEGRO_EVENT), (int) sizeof(event));
 		
 		if (!has_event)
 			break;
@@ -91,6 +125,8 @@ void Init_events()
 	rb_define_singleton_method(event_c, "new", event_new, 0);
 	
 	rb_define_method(event_c, "ifclose", event_ifclose, 0);
+	rb_define_method(event_c, "ifkeydown", event_ifkeydown, 0);
+	rb_define_method(event_c, "ifkeychar", event_ifkeychar, 0);
 	
 	// class EventQueue
 	
@@ -101,4 +137,6 @@ void Init_events()
 	rb_define_method(event_queue_c, "each", event_queue_each, 0);
 	rb_define_method(event_queue_c, "register_display", event_queue_register_display, 1);
 	rb_define_method(event_queue_c, "register_keyboard", event_queue_register_keyboard, 0);
+	
+	utf8_encoding = rb_enc_find("UTF8");
 }

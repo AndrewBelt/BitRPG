@@ -105,7 +105,7 @@ VALUE bitmap_sub(VALUE self, VALUE position, VALUE size)
 	int x = NUM2INT(rb_ary_entry(position, 0));
 	int y = NUM2INT(rb_ary_entry(position, 1));
 	int w = NUM2INT(rb_ary_entry(size, 0));
-	int h = NUM2INT(rb_ary_entry(position, 1));
+	int h = NUM2INT(rb_ary_entry(size, 1));
 	
 	ALLEGRO_BITMAP *bitmap_sub = al_create_sub_bitmap(bitmap, x, y, w, h);
 	
