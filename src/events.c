@@ -1,10 +1,9 @@
-#include "allegro_wrap.h"
 #include <ruby.h>
 #include <ruby/encoding.h>
 #include <allegro5/allegro.h>
+#include "bitrpg.h"
 
 static rb_encoding *utf8_encoding;
-static ID event_types[48];
 
 VALUE event_create(ALLEGRO_EVENT *event);
 
@@ -56,7 +55,11 @@ VALUE event_create(ALLEGRO_EVENT *event)
 {
 	VALUE event_c = rb_const_get(rb_cObject, rb_intern("Event"));
 	VALUE obj = rb_obj_alloc(event_c);
-	rb_iv_set(obj, "@type", event_types[event->type]);
+	
+	// Set the event type
+	VALUE event_types = rb_iv_get(event_c, "@event_types");
+	VALUE type = rb_hash_aref(event_types, INT2NUM(event->type));
+	rb_iv_set(obj, "@type", type);
 	
 	switch (event->type)
 	{
@@ -79,6 +82,8 @@ VALUE event_create(ALLEGRO_EVENT *event)
 
 void Init_events()
 {
+	rb_require("./lib/events");
+	
 	// class EventQueue
 	
 	VALUE event_queue_c = rb_define_class("EventQueue", rb_cObject);
@@ -89,36 +94,41 @@ void Init_events()
 	rb_define_method(event_queue_c, "register_display", event_queue_register_display, 1);
 	rb_define_method(event_queue_c, "register_keyboard", event_queue_register_keyboard, 0);
 	
+	// class Event
+	
+	VALUE event_c = rb_const_get(rb_cObject, rb_intern("Event"));
+	
+	VALUE event_types = rb_hash_new();
+	
+	#define EVENT_TYPE(key, value) \
+		rb_hash_aset(event_types, INT2NUM(key), ID2SYM(rb_intern(value)))
+	
+	// EVENT_TYPE(ALLEGRO_EVENT_JOYSTICK_AXIS, "");
+	// EVENT_TYPE(ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN, "");
+	// EVENT_TYPE(ALLEGRO_EVENT_JOYSTICK_BUTTON_UP, "");
+	// EVENT_TYPE(ALLEGRO_EVENT_JOYSTICK_CONFIGURATION, "");
+	EVENT_TYPE(ALLEGRO_EVENT_KEY_DOWN, "keydown");
+	EVENT_TYPE(ALLEGRO_EVENT_KEY_CHAR, "keychar");
+	EVENT_TYPE(ALLEGRO_EVENT_KEY_UP, "keyup");
+	// EVENT_TYPE(ALLEGRO_EVENT_MOUSE_AXES, "");
+	// EVENT_TYPE(ALLEGRO_EVENT_MOUSE_BUTTON_DOWN, "");
+	// EVENT_TYPE(ALLEGRO_EVENT_MOUSE_BUTTON_UP, "");
+	// EVENT_TYPE(ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY, "");
+	// EVENT_TYPE(ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY, "");
+	// EVENT_TYPE(ALLEGRO_EVENT_MOUSE_WARPED, "");
+	EVENT_TYPE(ALLEGRO_EVENT_TIMER, "timer");
+	EVENT_TYPE(ALLEGRO_EVENT_DISPLAY_EXPOSE, "expose");
+	EVENT_TYPE(ALLEGRO_EVENT_DISPLAY_RESIZE, "resize");
+	EVENT_TYPE(ALLEGRO_EVENT_DISPLAY_CLOSE, "close");
+	EVENT_TYPE(ALLEGRO_EVENT_DISPLAY_LOST, "lost");
+	EVENT_TYPE(ALLEGRO_EVENT_DISPLAY_FOUND, "found");
+	EVENT_TYPE(ALLEGRO_EVENT_DISPLAY_SWITCH_IN, "switch_in");
+	EVENT_TYPE(ALLEGRO_EVENT_DISPLAY_SWITCH_OUT, "switch_out");
+	EVENT_TYPE(ALLEGRO_EVENT_DISPLAY_ORIENTATION, "orientation");
+	
+	rb_iv_set(event_c, "@event_types", event_types);
+	
 	// Globals
 	
 	utf8_encoding = rb_enc_find("UTF8");
-	
-	// event type symbols
-	
-	/*
-	event_types[ALLEGRO_EVENT_JOYSTICK_AXIS]			= rb_intern("joystick_axis");
-	event_types[ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN]		= rb_intern("joystick_button_down");
-	event_types[ALLEGRO_EVENT_JOYSTICK_BUTTON_UP]		= rb_intern("joystick_button_up");
-	event_types[ALLEGRO_EVENT_JOYSTICK_CONFIGURATION]	= rb_intern("joystick_configuration");
-	*/
-	event_types[ALLEGRO_EVENT_KEY_DOWN]					= rb_intern("keydown");
-	event_types[ALLEGRO_EVENT_KEY_CHAR]					= rb_intern("keychar");
-	event_types[ALLEGRO_EVENT_KEY_UP]					= rb_intern("keyup");
-	/*
-	event_types[ALLEGRO_EVENT_MOUSE_AXES]				= rb_intern("");
-	event_types[ALLEGRO_EVENT_MOUSE_BUTTON_DOWN]		= rb_intern("");
-	event_types[ALLEGRO_EVENT_MOUSE_BUTTON_UP]			= rb_intern("");
-	event_types[ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY]		= rb_intern("");
-	event_types[ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY]		= rb_intern("");
-	event_types[ALLEGRO_EVENT_MOUSE_WARPED]				= rb_intern("");
-	*/
-	event_types[ALLEGRO_EVENT_TIMER]					= rb_intern("timer");
-	event_types[ALLEGRO_EVENT_DISPLAY_EXPOSE]			= rb_intern("expose");
-	event_types[ALLEGRO_EVENT_DISPLAY_RESIZE]			= rb_intern("resize");
-	event_types[ALLEGRO_EVENT_DISPLAY_CLOSE]			= rb_intern("close");
-	event_types[ALLEGRO_EVENT_DISPLAY_LOST]				= rb_intern("lost");
-	event_types[ALLEGRO_EVENT_DISPLAY_FOUND]			= rb_intern("found");
-	event_types[ALLEGRO_EVENT_DISPLAY_SWITCH_IN]		= rb_intern("switch_in");
-	event_types[ALLEGRO_EVENT_DISPLAY_SWITCH_OUT]		= rb_intern("switch_out");
-	event_types[ALLEGRO_EVENT_DISPLAY_ORIENTATION]		= rb_intern("orientation");
 }

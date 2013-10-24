@@ -1,13 +1,13 @@
 #include <stdlib.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <ruby.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
-#include "allegro_wrap.h"
+#include "bitrpg.h"
 
 
-void check_error(int error)
+void
+check_error(int error)
 {
 	if (error)
 	{
@@ -16,36 +16,46 @@ void check_error(int error)
 	}
 }
 
-
-void init_libs()
+static VALUE
+bitrpg_run(VALUE filename)
 {
-	rb_require("./lib/bitrpg");
+	Init_bitrpg();
+	rb_funcall(rb_cObject, rb_intern("load"), 1, filename);
+	return Qnil;
 }
 
+static void
+print_exception(VALUE exc)
+{
+	rb_p(exc);
+	VALUE backtrace = rb_funcall(exc, rb_intern("backtrace"), 0);
+	rb_funcall(rb_cObject, rb_intern("puts"), 1, backtrace);
+}
 
-int main(int argc, char **argv)
+int
+main(int argc, char **argv)
 {
 	int error;
+	
+	// Initialize Allegro
+	check_error(!al_init());
+	check_error(!al_init_image_addon());
+	check_error(!al_install_keyboard());
 	
 	// Initialize Ruby
 	ruby_init();
 	ruby_init_loadpath();
 	
-	rb_require("./lib/bitrpg");
-	Init_allegro_wrap();
+	// Run the game
+	rb_protect(bitrpg_run, rb_str_new2("./lib/main.rb"), &error);
 	
-	// Initialize Allegro
-	al_init();
-	al_init_image_addon();
-	al_install_keyboard();
-	
-	// Launch script
-	rb_load_protect(rb_str_new_cstr("./scripts/main.rb"), false, &error);
-	check_error(error);
+	if (error)
+	{
+		print_exception(rb_errinfo());
+		rb_set_errinfo(Qnil);
+	}
 	
 	// Cleanup
 	ruby_finalize();
-	
-	printf("</bitrpg>\n");
 	return 0;
 }

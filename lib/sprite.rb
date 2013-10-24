@@ -3,7 +3,8 @@ class Sprite
 	attr_accessor :position # [Number, Number]
 	attr_accessor :zoom # Integer
 	
-	def initialize
+	def initialize(bitmap=nil)
+		@bitmap = bitmap
 		@position = [0, 0]
 		@zoom = 1
 	end

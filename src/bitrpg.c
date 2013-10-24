@@ -1,5 +1,5 @@
-#include "allegro_wrap.h"
 #include <stdlib.h>
+#include "bitrpg.h"
 
 
 void soft_free(void *p)
@@ -8,8 +8,7 @@ void soft_free(void *p)
 		free(p);
 }
 
-
-void Init_allegro_wrap()
+void Init_bitrpg()
 {
 	Init_display();
 	Init_graphics();

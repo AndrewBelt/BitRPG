@@ -1,6 +1,6 @@
 CFLAGS = -Wall -g -O2 -std=c99 \
-	-I/usr/local/include/ruby-2.0.0 \
-	-I/usr/local/include/ruby-2.0.0/x86_64-darwin11.4.2
+	-I/usr/include/ruby-2.0.0 \
+	-I/usr/include/ruby-2.0.0/x86_64-linux
 
 LDFLAGS = -L/usr/local/lib \
 	-lallegro \
@@ -11,7 +11,7 @@ LDFLAGS = -L/usr/local/lib \
 
 OBJS = \
 	src/main.o \
-	src/allegro_wrap.o \
+	src/bitrpg.o \
 	src/display.o \
 	src/graphics.o \
 	src/events.o

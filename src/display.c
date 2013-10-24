@@ -1,6 +1,6 @@
-#include "allegro_wrap.h"
 #include <ruby.h>
 #include <allegro5/allegro.h>
+#include "bitrpg.h"
 
 
 static
@@ -9,7 +9,6 @@ void display_free(void *p)
 	if (p)
 		al_destroy_display(p);
 }
-
 
 VALUE display_new(VALUE cls, VALUE size)
 {
@@ -27,7 +26,6 @@ VALUE display_new(VALUE cls, VALUE size)
 	return obj;
 }
 
-
 VALUE display_close(VALUE self)
 {
 	display_free(RDATA(self)->data);
@@ -35,14 +33,12 @@ VALUE display_close(VALUE self)
 	return Qnil;
 }
 
-
 VALUE display_title_set(VALUE self, VALUE title)
 {
 	ALLEGRO_DISPLAY *display = RDATA(self)->data;
 	al_set_window_title(display, rb_string_value_cstr(&title));
 	return Qnil;
 }
-
 
 /**	Enables the display for further drawing
 */
@@ -55,7 +51,6 @@ VALUE display_activate(VALUE self)
 	return Qnil;
 }
 
-
 /**	Clears the display to black
 */
 VALUE display_clear(VALUE self)
@@ -66,7 +61,6 @@ VALUE display_clear(VALUE self)
 	return Qnil;
 }
 
-
 /**	Flips the double buffer of the display
 */
 VALUE display_flip(VALUE self)
@@ -75,7 +69,6 @@ VALUE display_flip(VALUE self)
 	al_flip_display();
 	return Qnil;
 }
-
 
 /**	Returns an array with [width, height]
 */
@@ -89,9 +82,10 @@ VALUE display_size(VALUE self)
 	return size;
 }
 
-
 void Init_display()
 {
+	rb_require("./lib/draw_target");
+	
 	// class Display
 	
 	VALUE display_c = rb_define_class("Display", rb_cObject);

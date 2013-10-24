@@ -1,7 +1,7 @@
-#include "allegro_wrap.h"
 #include <stdbool.h>
 #include <ruby.h>
 #include <allegro5/allegro.h>
+#include "bitrpg.h"
 
 
 static VALUE bitmap_c;
@@ -13,7 +13,6 @@ void bitmap_free(void *p)
 	if (p)
 		al_destroy_bitmap(p);
 }
-
 
 VALUE bitmap_new(VALUE cls, VALUE size)
 {
@@ -29,7 +28,6 @@ VALUE bitmap_new(VALUE cls, VALUE size)
 	return obj;
 }
 
-
 VALUE bitmap_load(VALUE cls, VALUE filename)
 {
 	char *filename_str = rb_string_value_cstr(&filename);
@@ -42,7 +40,6 @@ VALUE bitmap_load(VALUE cls, VALUE filename)
 	return obj;
 }
 
-
 /**	Enables the bitmap for further drawing
 */
 VALUE bitmap_activate(VALUE self)
@@ -52,7 +49,6 @@ VALUE bitmap_activate(VALUE self)
 	return Qnil;
 }
 
-
 /**	Clears the bitmap to black
 */
 VALUE bitmap_clear(VALUE self)
@@ -61,7 +57,6 @@ VALUE bitmap_clear(VALUE self)
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 	return Qnil;
 }
-
 
 /**	Returns an array with [width, height]
 */
@@ -74,7 +69,6 @@ VALUE bitmap_size(VALUE self)
 	VALUE size = rb_ary_new3(2, INT2NUM(width), INT2NUM(height));
 	return size;
 }
-
 
 VALUE bitmap_blit(VALUE self, VALUE position, VALUE zoom)
 {
@@ -98,7 +92,6 @@ VALUE bitmap_blit(VALUE self, VALUE position, VALUE zoom)
 	return Qnil;
 }
 
-
 VALUE bitmap_sub(VALUE self, VALUE position, VALUE size)
 {
 	ALLEGRO_BITMAP *bitmap = RDATA(self)->data;
@@ -117,9 +110,10 @@ VALUE bitmap_sub(VALUE self, VALUE position, VALUE size)
 	return obj;
 }
 
-
 void Init_graphics()
 {
+	rb_require("./lib/draw_target");
+	
 	// class Bitmap
 	
 	bitmap_c = rb_define_class("Bitmap", rb_cObject);
