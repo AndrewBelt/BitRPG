@@ -4,4 +4,7 @@ class State
 	
 	def check_event(event)
 	end
+	
+	def advance_frame
+	end
 end

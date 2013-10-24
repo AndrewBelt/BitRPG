@@ -7,7 +7,8 @@ class Map < State
 		@sprites = []
 	end
 	
-	def load(filename)
+	def load(name)
+		filename = "maps/#{name}.json"
 		file = File.open(filename)
 		data = JSON.load(file)
 		load_data(data)
@@ -18,7 +19,6 @@ class Map < State
 	end
 	
 	def add(sprite, layer=1)
-		p @sprites
 		@sprites << sprite
 	end
 	
@@ -29,8 +29,12 @@ class Map < State
 	end
 	
 	def check_event(event)
-		if event.type == :keydown
-			puts event.keycode
+		if event.type == :keychar
+			puts event.chr
 		end
+	end
+	
+	def advance_frame
+		@sprites[0].move([rand(3)-1,rand(3)-1])
 	end
 end
