@@ -1,5 +1,11 @@
-class Tilesheet
+class TileSheet
 	include Enumerable
+	
+	attr_reader :bitmap
+	attr_reader :tile_size
+	attr_reader :margin
+	attr_reader :spacing
+	attr_reader :sheet_size
 	
 	def initialize(bitmap, tile_size, margin=0, spacing=0)
 		@bitmap = bitmap
@@ -13,17 +19,28 @@ class Tilesheet
 		
 		# TODO
 		# Check validity of @sheet_size
+		
+		@bitmaps = {}
 	end
 	
 	def [](id)
 		y, x = id.divmod(@sheet_size.x)
-		return nil if y >= @sheet_size.y
+		at([x, y])
+	end
+	
+	def at(coords)
+		cached_bitmap = @bitmaps[coords]
+		return cached_bitmap if cached_bitmap
 		
-		position = [@margin + (@tile_size.x + @spacing) * x,
-			@margin + (@tile_size.y + @spacing) * y]
+		return nil unless (0...@sheet_size.x) === coords.x
+		return nil unless (0...@sheet_size.y) === coords.y
 		
-		# TODO
-		# Generate a Sprite with [position, @tile_size]
+		position = [@margin + (@tile_size.x + @spacing) * coords.x,
+			@margin + (@tile_size.y + @spacing) * coords.y]
+		
+		clipped_bitmap = @bitmap.clip(position, @tile_size)
+		@bitmaps[coords] = clipped_bitmap
+		clipped_bitmap
 	end
 	
 	def length

@@ -34,7 +34,7 @@ VALUE bitmap_load(VALUE cls, VALUE filename)
 	ALLEGRO_BITMAP *bitmap = al_load_bitmap(filename_str);
 	
 	if (!bitmap)
-		rb_raise(rb_eIOError, "Could not open bitmap");
+		rb_raise(rb_eIOError, "Could not open bitmap '%s'", filename_str);
 	
 	VALUE obj = rb_data_object_alloc(cls, bitmap, NULL, bitmap_free);
 	return obj;
