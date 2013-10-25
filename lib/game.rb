@@ -66,7 +66,6 @@ class Game
 		
 		if @start_time
 			duration = current_time - @start_time
-			puts 1 / duration
 			sleep_time = 1.0 / @framerate - duration
 			sleep(sleep_time) if sleep_time > 0
 		end
@@ -74,8 +73,6 @@ class Game
 		end_time = Time.now
 		@last_framerate = 1 / (end_time - @start_time)
 		@start_time = end_time
-		
-		puts '%.2f fps' % @last_framerate
 	end
 	
 	def check_events

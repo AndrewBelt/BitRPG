@@ -7,6 +7,10 @@ class Map < State
 		@sprites = []
 	end
 	
+	def clear
+		@sprites.clear
+	end
+	
 	def load(name)
 		filename = "maps/#{name}.json"
 		file = File.open(filename)
@@ -35,6 +39,5 @@ class Map < State
 	end
 	
 	def advance_frame
-		@sprites[0].move([rand(3)-1,rand(3)-1])
 	end
 end

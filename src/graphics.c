@@ -92,7 +92,9 @@ VALUE bitmap_blit(VALUE self, VALUE position, VALUE zoom)
 	return Qnil;
 }
 
-VALUE bitmap_sub(VALUE self, VALUE position, VALUE size)
+/**	Creates a new bitmap and copies a rectangular portion of self's bitmap
+*/
+VALUE bitmap_clip(VALUE self, VALUE position, VALUE size)
 {
 	ALLEGRO_BITMAP *bitmap = RDATA(self)->data;
 	int x = NUM2INT(rb_ary_entry(position, 0));
@@ -101,12 +103,13 @@ VALUE bitmap_sub(VALUE self, VALUE position, VALUE size)
 	int h = NUM2INT(rb_ary_entry(size, 1));
 	
 	ALLEGRO_BITMAP *bitmap_sub = al_create_sub_bitmap(bitmap, x, y, w, h);
+	ALLEGRO_BITMAP *bitmap_clipped = al_clone_bitmap(bitmap_sub);
+	al_destroy_bitmap(bitmap_sub);
 	
-	if (!bitmap_sub)
-		rb_raise(rb_eStandardError, "Could not create sub bitmap");
+	if (!bitmap_clipped)
+		rb_raise(rb_eStandardError, "Could not create clipped bitmap");
 	
-	VALUE obj = rb_data_object_alloc(bitmap_c, bitmap_sub, NULL, bitmap_free);
-	rb_iv_set(obj, "@parent", self);
+	VALUE obj = rb_data_object_alloc(bitmap_c, bitmap_clipped, NULL, bitmap_free);
 	return obj;
 }
 
@@ -126,7 +129,7 @@ void Init_graphics()
 	rb_define_method(bitmap_c, "clear", bitmap_clear, 0);
 	rb_define_method(bitmap_c, "size", bitmap_size, 0);
 	rb_define_method(bitmap_c, "blit", bitmap_blit, 2);
-	rb_define_method(bitmap_c, "sub", bitmap_sub, 2);
+	rb_define_method(bitmap_c, "clip", bitmap_clip, 2);
 	rb_attr(bitmap_c, rb_intern("parent"), true, false, false);
 	
 	// TODO

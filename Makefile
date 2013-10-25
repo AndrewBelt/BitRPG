@@ -16,11 +16,11 @@ OBJS = \
 	src/graphics.o \
 	src/events.o
 
-all: bitrpg
+all: bin/bitrpg
 
-bitrpg: $(OBJS)
+bin/bitrpg: $(OBJS)
 	$(LINK.c) -o $@ $^
 
 clean:
-	rm -f bitrpg
+	rm -f bin/bitrpg
 	rm -f $(OBJS)
