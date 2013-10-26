@@ -64,16 +64,18 @@ VALUE event_create(ALLEGRO_EVENT *event)
 	switch (event->type)
 	{
 	case ALLEGRO_EVENT_KEY_CHAR:
-		{
-			VALUE chr = rb_enc_uint_chr(
-				event->keyboard.unichar, utf8_encoding);
-			rb_iv_set(obj, "@chr", chr);
-		}
+		rb_iv_set(obj, "@chr", rb_enc_uint_chr(event->keyboard.unichar,
+			utf8_encoding));
 		rb_iv_set(obj, "@repeat", event->keyboard.repeat ? Qtrue : Qfalse);
 		
 	case ALLEGRO_EVENT_KEY_DOWN:
 	case ALLEGRO_EVENT_KEY_UP:
-		rb_iv_set(obj, "@keycode", INT2NUM(event->keyboard.keycode));
+		{
+			VALUE key_codes = rb_iv_get(event_c, "@key_codes");
+			VALUE key_code = INT2NUM(event->keyboard.keycode);
+			VALUE key_code_sym = rb_hash_aref(key_codes, key_code);
+			rb_iv_set(obj, "@key", key_code_sym);
+		}
 		break;
 	}
 	
@@ -98,17 +100,19 @@ void Init_events()
 	VALUE event_c = rb_const_get(rb_cObject, rb_intern("Event"));
 	
 	VALUE event_types = rb_hash_new();
+	#define EVENT_TYPE(type, symbol) \
+		rb_hash_aset(event_types, INT2NUM(type), ID2SYM(rb_intern(symbol)))
 	
-	#define EVENT_TYPE(key, value) \
-		rb_hash_aset(event_types, INT2NUM(key), ID2SYM(rb_intern(value)))
+	// TODO
+	// Fill out the rest of these
 	
 	// EVENT_TYPE(ALLEGRO_EVENT_JOYSTICK_AXIS, "");
 	// EVENT_TYPE(ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN, "");
 	// EVENT_TYPE(ALLEGRO_EVENT_JOYSTICK_BUTTON_UP, "");
 	// EVENT_TYPE(ALLEGRO_EVENT_JOYSTICK_CONFIGURATION, "");
-	EVENT_TYPE(ALLEGRO_EVENT_KEY_DOWN, "keydown");
-	EVENT_TYPE(ALLEGRO_EVENT_KEY_CHAR, "keychar");
-	EVENT_TYPE(ALLEGRO_EVENT_KEY_UP, "keyup");
+	EVENT_TYPE(ALLEGRO_EVENT_KEY_DOWN, "key_down");
+	EVENT_TYPE(ALLEGRO_EVENT_KEY_CHAR, "key_char");
+	EVENT_TYPE(ALLEGRO_EVENT_KEY_UP, "key_up");
 	// EVENT_TYPE(ALLEGRO_EVENT_MOUSE_AXES, "");
 	// EVENT_TYPE(ALLEGRO_EVENT_MOUSE_BUTTON_DOWN, "");
 	// EVENT_TYPE(ALLEGRO_EVENT_MOUSE_BUTTON_UP, "");
@@ -126,6 +130,94 @@ void Init_events()
 	EVENT_TYPE(ALLEGRO_EVENT_DISPLAY_ORIENTATION, "orientation");
 	
 	rb_iv_set(event_c, "@event_types", event_types);
+	
+	
+	VALUE key_codes = rb_hash_new();
+	#define KEY_CODE(key, symbol) \
+		rb_hash_aset(key_codes, INT2NUM(key), ID2SYM(rb_intern(symbol)))
+	
+	char sym_alphabet[] = "a";
+	for (int key = ALLEGRO_KEY_A; key <= ALLEGRO_KEY_Z; key++, sym_alphabet[0]++)
+		KEY_CODE(key, sym_alphabet);
+	
+	char sym_num[] = "num0";
+	for (int key = ALLEGRO_KEY_0; key <= ALLEGRO_KEY_9; key++, sym_num[3]++)
+		KEY_CODE(key, sym_num);
+	
+	char sym_pad[] = "pad0";
+	for (int key = ALLEGRO_KEY_PAD_0; key <= ALLEGRO_KEY_PAD_9; key++, sym_pad[3]++)
+		KEY_CODE(key, sym_pad);
+	
+	char sym_fn[] = "f1";
+	for (int key = ALLEGRO_KEY_F1; key <= ALLEGRO_KEY_F9; key++, sym_fn[1]++)
+		KEY_CODE(key, sym_fn);
+	
+	KEY_CODE(ALLEGRO_KEY_F10, "f10");
+	KEY_CODE(ALLEGRO_KEY_F11, "f11");
+	KEY_CODE(ALLEGRO_KEY_F12, "f12");
+	KEY_CODE(ALLEGRO_KEY_ESCAPE, "escape");
+	KEY_CODE(ALLEGRO_KEY_TILDE, "tilde");
+	KEY_CODE(ALLEGRO_KEY_MINUS, "minus");
+	KEY_CODE(ALLEGRO_KEY_EQUALS, "equals");
+	KEY_CODE(ALLEGRO_KEY_BACKSPACE, "backspace");
+	KEY_CODE(ALLEGRO_KEY_TAB, "tab");
+	KEY_CODE(ALLEGRO_KEY_OPENBRACE, "open_brace");
+	KEY_CODE(ALLEGRO_KEY_CLOSEBRACE, "close_brace");
+	KEY_CODE(ALLEGRO_KEY_ENTER, "enter");
+	KEY_CODE(ALLEGRO_KEY_SEMICOLON, "semicolon");
+	KEY_CODE(ALLEGRO_KEY_QUOTE, "quote");
+	KEY_CODE(ALLEGRO_KEY_BACKSLASH, "backslash");
+	// KEY_CODE(ALLEGRO_KEY_BACKSLASH2, "");
+	// KEY_CODE(ALLEGRO_KEY_COMMA, "");
+	// KEY_CODE(ALLEGRO_KEY_FULLSTOP, "");
+	// KEY_CODE(ALLEGRO_KEY_SLASH, "");
+	KEY_CODE(ALLEGRO_KEY_SPACE, "space");
+	// KEY_CODE(ALLEGRO_KEY_INSERT, "");
+	// KEY_CODE(ALLEGRO_KEY_DELETE, "");
+	// KEY_CODE(ALLEGRO_KEY_HOME, "");
+	// KEY_CODE(ALLEGRO_KEY_END, "");
+	// KEY_CODE(ALLEGRO_KEY_PGUP, "");
+	// KEY_CODE(ALLEGRO_KEY_PGDN, "");
+	KEY_CODE(ALLEGRO_KEY_LEFT, "left");
+	KEY_CODE(ALLEGRO_KEY_RIGHT, "right");
+	KEY_CODE(ALLEGRO_KEY_UP, "up");
+	KEY_CODE(ALLEGRO_KEY_DOWN, "down");
+	// KEY_CODE(ALLEGRO_KEY_PAD_SLASH, "");
+	// KEY_CODE(ALLEGRO_KEY_PAD_ASTERISK, "");
+	// KEY_CODE(ALLEGRO_KEY_PAD_MINUS, "");
+	// KEY_CODE(ALLEGRO_KEY_PAD_PLUS, "");
+	// KEY_CODE(ALLEGRO_KEY_PAD_DELETE, "");
+	// KEY_CODE(ALLEGRO_KEY_PAD_ENTER, "");
+	// KEY_CODE(ALLEGRO_KEY_PRINTSCREEN, "");
+	// KEY_CODE(ALLEGRO_KEY_PAUSE, "");
+	// KEY_CODE(ALLEGRO_KEY_ABNT_C1, "");
+	// KEY_CODE(ALLEGRO_KEY_YEN, "");
+	// KEY_CODE(ALLEGRO_KEY_KANA, "");
+	// KEY_CODE(ALLEGRO_KEY_CONVERT, "");
+	// KEY_CODE(ALLEGRO_KEY_NOCONVERT, "");
+	// KEY_CODE(ALLEGRO_KEY_AT, "");
+	// KEY_CODE(ALLEGRO_KEY_CIRCUMFLEX, "");
+	// KEY_CODE(ALLEGRO_KEY_COLON2, "");
+	// KEY_CODE(ALLEGRO_KEY_KANJI, "");
+	// KEY_CODE(ALLEGRO_KEY_LSHIFT, "");
+	// KEY_CODE(ALLEGRO_KEY_RSHIFT, "");
+	// KEY_CODE(ALLEGRO_KEY_LCTRL, "");
+	// KEY_CODE(ALLEGRO_KEY_RCTRL, "");
+	// KEY_CODE(ALLEGRO_KEY_ALT, "");
+	// KEY_CODE(ALLEGRO_KEY_ALTGR, "");
+	// KEY_CODE(ALLEGRO_KEY_LWIN, "");
+	// KEY_CODE(ALLEGRO_KEY_RWIN, "");
+	// KEY_CODE(ALLEGRO_KEY_MENU, "");
+	// KEY_CODE(ALLEGRO_KEY_SCROLLLOCK, "");
+	// KEY_CODE(ALLEGRO_KEY_NUMLOCK, "");
+	// KEY_CODE(ALLEGRO_KEY_CAPSLOCK, "");
+	// KEY_CODE(ALLEGRO_KEY_PAD_EQUALS, "");
+	// KEY_CODE(ALLEGRO_KEY_BACKQUOTE, "");
+	// KEY_CODE(ALLEGRO_KEY_SEMICOLON2, "");
+	// KEY_CODE(ALLEGRO_KEY_COMMAND, "");
+	
+	rb_iv_set(event_c, "@key_codes", key_codes);
+	
 	
 	// Globals
 	

@@ -1,10 +1,31 @@
 class Entity
+	attr_accessor :bitmap
+	attr_accessor :coords
+	alias_method :place, :coords=
+	
 	def initialize
-		@pos = [0, 0]
-		@layer = 1
+		@coords = [0, 0]
 	end
 	
-	def place(pos)
-		@pos = pos
+	def draw_to(target, tile_size)
+		target.activate
+		position = [@coords.x * tile_size.x, @coords.y * tile_size.y]
+		@bitmap.blit(position)
 	end
+	
+	def advance_frame
+		# TODO
+		# Go to next animation
+	end
+	
+	# TODO
+	# Animations
+end
+
+
+class Character < Entity
+	attr_accessor :behavior
+	
+	# TODO
+	# Map walking animations
 end

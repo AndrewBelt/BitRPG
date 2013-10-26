@@ -35,12 +35,13 @@ class Game
 	
 	def run
 		# The script thread
-		script_thread = Thread.new do
-			load './scripts/start.rb'
-		end
+		# script_thread = Thread.new do
+		# 	load './scripts/start.rb'
+		# end
+		load './scripts/start.rb'
 		
 		@running = true
-		script_thread.run
+		# script_thread.run
 		@start_time = Time.now
 		
 		while @running do
@@ -90,6 +91,10 @@ class Game
 	def check_events
 		@queue.each do |event|
 			if event.type == :close
+				@running = false
+			end
+			
+			if event.type == :key_down and event.key == :escape
 				@running = false
 			end
 			

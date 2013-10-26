@@ -38,7 +38,7 @@ class Bitmap
 	# def size; end
 	
 	# Draws the bitmap to the currently activated DrawTarget
-	# def blit(position, zoom); end
+	# def blit(position=[0, 0], zoom=1); end
 	
 	# Creates a new bitmap and copies a rectangular portion of self's bitmap
 	# def clip(position, size); end

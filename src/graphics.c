@@ -64,12 +64,24 @@ VALUE bitmap_size(VALUE self)
 	return size;
 }
 
-VALUE bitmap_blit(VALUE self, VALUE position, VALUE zoom)
+VALUE bitmap_blit(int argc, VALUE *argv, VALUE self)
 {
 	ALLEGRO_BITMAP *bitmap = RDATA(self)->data;
-	int dx = NUM2INT(rb_ary_entry(position, 0));
-	int dy = NUM2INT(rb_ary_entry(position, 1));
-	int z = NUM2INT(zoom);
+	int dx = 0;
+	int dy = 0;
+	int z = 1;
+	
+	if (argc >= 1)
+	{
+		VALUE position = argv[0];
+		dx = NUM2INT(rb_ary_entry(position, 0));
+		dy = NUM2INT(rb_ary_entry(position, 1));
+	}
+	if (argc >= 2)
+	{
+		VALUE zoom = argv[1];
+		z = NUM2INT(zoom);
+	}
 	
 	if (z <= 1)
 	{
@@ -118,6 +130,6 @@ void Init_graphics()
 	rb_define_method(bitmap_c, "activate", bitmap_activate, 0);
 	rb_define_method(bitmap_c, "clear", bitmap_clear, 0);
 	rb_define_method(bitmap_c, "size", bitmap_size, 0);
-	rb_define_method(bitmap_c, "blit", bitmap_blit, 2);
+	rb_define_method(bitmap_c, "blit", bitmap_blit, -1);
 	rb_define_method(bitmap_c, "clip", bitmap_clip, 2);
 }

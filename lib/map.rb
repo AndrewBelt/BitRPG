@@ -3,18 +3,26 @@ require './lib/tilesheet'
 require 'json'
 
 class Map < State
+	# The number of map tiles composing the map
+	attr_reader :map_size # [Integer, Integer]
+	
+	# The pixel dimensions of each tile
+	attr_reader :tile_size # [Integer, Integer]
 	
 	def initialize
 		clear
 	end
 	
 	def clear
-		@sprites = []
+		@tiles = []
+		@entities = []
+		@map_size = [0, 0]
+		@tile_size = [0, 0]
 	end
 	
 	def load(name)
-		filename = "maps/#{name}.json"
-		file = File.open(filename)
+		path = File.realpath("#{name}.json", 'maps')
+		file = File.open(path)
 		data = JSON.load(file)
 		load_data(data)
 	end
@@ -81,24 +89,25 @@ class Map < State
 				map_pos.x += offset.x
 				map_pos.y += offset.y
 				
-				# TEMP
-				# Tiles should probably be positioned by the grid instead
-				# of pixel position
 				tile_sprite = Sprite.new(tile_bitmap)
 				tile_sprite.position = [map_pos.x * @tile_size.x,
 					map_pos.y * @tile_size.y]
-				add(tile_sprite)
+				@tiles << tile_sprite
 			end
 		end
 	end
 	
-	def add(sprite, layer=1)
-		@sprites << sprite
+	def add(entity, layer=1)
+		@entities << entity
 	end
 	
 	def draw_to(target)
-		@sprites.each do |sprite|
-			target.draw(sprite)
+		@tiles.each do |tile|
+			target.draw(tile)
+		end
+		
+		@entities.each do |entity|
+			target.draw(entity, @tile_size)
 		end
 	end
 	
