@@ -103,9 +103,6 @@ class Map < State
 	end
 	
 	def check_event(event)
-		if event.type == :keychar
-			puts event.chr
-		end
 	end
 	
 	def advance_frame

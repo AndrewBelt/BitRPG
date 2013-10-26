@@ -86,10 +86,9 @@ void Init_events()
 	
 	// class EventQueue
 	
-	VALUE event_queue_c = rb_define_class("EventQueue", rb_cObject);
+	VALUE event_queue_c = rb_const_get(rb_cObject, rb_intern("EventQueue"));
 	rb_define_singleton_method(event_queue_c, "new", event_queue_new, 0);
 	
-	rb_include_module(event_queue_c, rb_mEnumerable);
 	rb_define_method(event_queue_c, "each", event_queue_each, 0);
 	rb_define_method(event_queue_c, "register_display", event_queue_register_display, 1);
 	rb_define_method(event_queue_c, "register_keyboard", event_queue_register_keyboard, 0);

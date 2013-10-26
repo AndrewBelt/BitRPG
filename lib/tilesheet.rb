@@ -20,7 +20,7 @@ class TileSheet
 		# TODO
 		# Check validity of @sheet_size
 		
-		@bitmaps = {}
+		@cached_bitmaps = {}
 	end
 	
 	def [](id)
@@ -29,7 +29,7 @@ class TileSheet
 	end
 	
 	def at(coords)
-		cached_bitmap = @bitmaps[coords]
+		cached_bitmap = @cached_bitmaps[coords]
 		return cached_bitmap if cached_bitmap
 		
 		return nil unless (0...@sheet_size.x) === coords.x
@@ -39,7 +39,7 @@ class TileSheet
 			@margin + (@tile_size.y + @spacing) * coords.y]
 		
 		clipped_bitmap = @bitmap.clip(position, @tile_size)
-		@bitmaps[coords] = clipped_bitmap
+		@cached_bitmaps[coords] = clipped_bitmap
 		clipped_bitmap
 	end
 	

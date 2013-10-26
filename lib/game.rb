@@ -34,11 +34,13 @@ class Game
 	end
 	
 	def run
-		# TODO
-		# Maybe load this in a new thread
-		load './scripts/start.rb'
+		# The script thread
+		script_thread = Thread.new do
+			load './scripts/start.rb'
+		end
 		
 		@running = true
+		script_thread.run
 		@start_time = Time.now
 		
 		while @running do
@@ -52,12 +54,22 @@ class Game
 		@display = nil
 	end
 	
+	def stop
+		@running = false
+	end
+	
+	alias_method :quit, :stop
+	alias_method :close, :stop
+	
 	def render
-		@screen.bitmap.clear
-		@screen.bitmap.draw(@state)
-		
 		@display.clear
-		@display.draw(@screen)
+		
+		if @state
+			@screen.bitmap.clear
+			@screen.bitmap.draw(@state)
+			@display.draw(@screen)
+		end
+		
 		@display.flip
 	end
 	

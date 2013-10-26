@@ -17,6 +17,7 @@ VALUE display_new(VALUE cls, VALUE size)
 	
 	al_reset_new_display_options();
 	al_set_new_display_flags(ALLEGRO_WINDOWED);
+	al_set_new_display_option(ALLEGRO_VSYNC, 2, 1);
 	ALLEGRO_DISPLAY *display = al_create_display(width, height);
 	
 	if (!display)
@@ -40,29 +41,20 @@ VALUE display_title_set(VALUE self, VALUE title)
 	return Qnil;
 }
 
-/**	Enables the display for further drawing
-*/
 VALUE display_activate(VALUE self)
 {
-	// rb_p(self);
-	
 	ALLEGRO_DISPLAY *display = RDATA(self)->data;
 	al_set_target_backbuffer(display);
 	return Qnil;
 }
 
-/**	Clears the display to black
-*/
 VALUE display_clear(VALUE self)
 {
-	// Is directly calling a C defined Ruby method safe?
 	display_activate(self);
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 	return Qnil;
 }
 
-/**	Flips the double buffer of the display
-*/
 VALUE display_flip(VALUE self)
 {
 	display_activate(self);
@@ -70,8 +62,6 @@ VALUE display_flip(VALUE self)
 	return Qnil;
 }
 
-/**	Returns an array with [width, height]
-*/
 VALUE display_size(VALUE self)
 {
 	ALLEGRO_DISPLAY *display = RDATA(self)->data;
@@ -84,13 +74,11 @@ VALUE display_size(VALUE self)
 
 void Init_display()
 {
-	rb_require("./lib/draw_target");
+	rb_require("./lib/display");
 	
 	// class Display
 	
-	VALUE display_c = rb_define_class("Display", rb_cObject);
-	VALUE draw_target_m = rb_const_get(rb_cObject, rb_intern("DrawTarget"));
-	rb_include_module(display_c, draw_target_m);
+	VALUE display_c = rb_const_get(rb_cObject, rb_intern("Display"));
 	rb_define_singleton_method(display_c, "new", display_new, 1);
 	
 	rb_define_method(display_c, "close", display_close, 0);
@@ -99,7 +87,6 @@ void Init_display()
 	rb_define_method(display_c, "clear", display_clear, 0);
 	rb_define_method(display_c, "flip", display_flip, 0);
 	rb_define_method(display_c, "size", display_size, 0);
-	rb_attr(display_c, rb_intern("events"), true, false, false);
 	
 	// TODO
 	// title
