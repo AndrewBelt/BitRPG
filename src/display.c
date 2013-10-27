@@ -74,7 +74,7 @@ VALUE display_size(VALUE self)
 
 void Init_display()
 {
-	rb_require("./lib/display");
+	rb_require("./lib/core/display");
 	
 	// class Display
 	

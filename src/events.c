@@ -84,7 +84,7 @@ VALUE event_create(ALLEGRO_EVENT *event)
 
 void Init_events()
 {
-	rb_require("./lib/events");
+	rb_require("./lib/core/events");
 	
 	// class EventQueue
 	

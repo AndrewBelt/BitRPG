@@ -119,7 +119,7 @@ VALUE bitmap_clip(VALUE self, VALUE position, VALUE size)
 
 void Init_graphics()
 {
-	rb_require("./lib/graphics");
+	rb_require("./lib/core/graphics");
 	
 	// class Bitmap
 	

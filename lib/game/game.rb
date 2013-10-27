@@ -1,4 +1,4 @@
-require './lib/sprite'
+require './lib/core/sprite'
 require 'yaml'
 
 class Game

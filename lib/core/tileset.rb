@@ -1,4 +1,4 @@
-class TileSheet
+class Tileset
 	include Enumerable
 	
 	attr_reader :bitmap

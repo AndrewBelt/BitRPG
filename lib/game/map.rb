@@ -1,5 +1,6 @@
-require './lib/state'
-require './lib/tilesheet'
+require './lib/core/tileset'
+require './lib/game/state'
+require './lib/game/entity'
 require 'json'
 
 class Map < State
@@ -9,21 +10,21 @@ class Map < State
 	# The pixel dimensions of each tile
 	attr_reader :tile_size # [Integer, Integer]
 	
+	attr_accessor :camera
+	
 	def initialize
 		clear
 	end
 	
 	def clear
 		@tiles = []
-		@entities = []
 		@map_size = [0, 0]
 		@tile_size = [0, 0]
 	end
 	
 	def load(name)
 		path = File.realpath("#{name}.json", 'maps')
-		file = File.open(path)
-		data = JSON.load(file)
+		data = JSON.load(File.open(path))
 		load_data(data)
 	end
 	
@@ -51,13 +52,13 @@ class Map < State
 			margin = tileset_data['margin']
 			spacing = tileset_data['spacing']
 			
-			tileset_bitmap = Bitmap.load(image_filename)
+			tileset_bitmap = Bitmap.find(image_filename)
 			
 			unless tileset_bitmap.size == image_size
 				raise "Tileset '#{name}' is the wrong size"
 			end
 			
-			tileset = TileSheet.new(tileset_bitmap, tile_size, margin, spacing)
+			tileset = Tileset.new(tileset_bitmap, tile_size, margin, spacing)
 			
 			first_gid = tileset_data['firstgid']
 			tilesets[first_gid] = tileset
@@ -73,6 +74,7 @@ class Map < State
 			
 			name = layer_data['name']
 			layer_size = [layer_data['width'], layer_data['height']]
+			# Offset is defined by map coords, not pixels
 			offset = [layer_data['x'], layer_data['y']]
 			
 			gids = layer_data['data']
@@ -80,34 +82,47 @@ class Map < State
 				gid = gids[i]
 				next if gid == 0
 				
+				tile = Tile.new
+				
 				fid = first_gids.find {|fid| fid <= gid}
 				id = gid - fid
 				tileset = tilesets[fid]
-				tile_bitmap = tileset[id]
+				tile.bitmap = tileset[id]
 				
-				map_pos = i.divmod(layer_size.x).reverse
-				map_pos.x += offset.x
-				map_pos.y += offset.y
+				coords = i.divmod(layer_size.x).reverse
+				coords.x += offset.x
+				coords.y += offset.y
+				tile.coords = coords
 				
-				tile_sprite = Sprite.new(tile_bitmap)
-				tile_sprite.position = [map_pos.x * @tile_size.x,
-					map_pos.y * @tile_size.y]
-				@tiles << tile_sprite
+				@tiles << tile
 			end
 		end
 	end
 	
-	def add(entity, layer=1)
-		@entities << entity
+	def add(tile, layer=1)
+		@tiles << tile
 	end
 	
 	def draw_to(target)
-		@tiles.each do |tile|
-			target.draw(tile)
-		end
+		center = @camera ? @camera.center : [0, 0]
 		
-		@entities.each do |entity|
-			target.draw(entity, @tile_size)
+		target_size = target.size
+		offset = [center.x * @tile_size.x - target_size.x / 2,
+			center.y * @tile_size.y - target_size.y / 2]
+		
+		target.activate
+		
+		# TODO
+		# Combine static tile rendering with entities
+		# - Remove sprite (unless needed elsewhere)
+		@tiles.each do |tile|
+			position = [tile.coords.x * @tile_size.x - offset.x,
+				tile.coords.y * @tile_size.y - offset.y]
+			
+			# TODO
+			# Draw only if the bitmap is in the boundary
+			
+			tile.bitmap.blit(position)
 		end
 	end
 	

@@ -5,4 +5,7 @@ module DrawTarget
 	def draw(drawable, *args)
 		drawable.draw_to(self, *args)
 	end
+	
+	def activate; end
+	def size; end
 end

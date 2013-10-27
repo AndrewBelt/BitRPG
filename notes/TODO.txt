@@ -2,3 +2,24 @@
 TODO
 ===
 
+Character
+- animation schema for entity
+- walking animation schema for character
+- behaviors
+- map should pass events to its PlayerBehavior
+
+Standardize the Rails-like automatic searching of
+- scripts
+- Maps
+- etc
+
+GUI
+- Font
+- Element
+- Text < Element
+- Panel < Element
+- Container < Element
+
+Audio
+- Music
+- Sound

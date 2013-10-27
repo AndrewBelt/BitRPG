@@ -1,23 +1,27 @@
-require './lib/draw_target'
+require './lib/core/draw_target'
 
 class Bitmap
 	include DrawTarget
 	
 	# Original file path if known
-	attr_reader :path
+	attr_accessor :path
 	
 	def self.find(filename)
 		path = File.realpath(filename)
 		
 		# Does this bitmap exist in the ObjectSpace?
-		bitmap = ObjectSpace.each_object(self) do |bitmap|
-			break bitmap if bitmap.path == path
+		bitmap = nil
+		ObjectSpace.each_object(self) do |b|
+			if b.path == path
+				bitmap = b
+				break
+			end
 		end
 		
 		# Load the bitmap if not
 		unless bitmap
-			bitmap = self.load
-			bitmap.path
+			bitmap = self.load(path)
+			bitmap.path = path
 		end
 		
 		bitmap

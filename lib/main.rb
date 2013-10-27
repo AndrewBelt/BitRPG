@@ -1,8 +1,9 @@
-require './lib/util'
-require './lib/game'
-require './lib/map'
-require './lib/entity'
-require './lib/repl'
+require './lib/core/util'
+require './lib/core/repl'
+require './lib/game/game'
+require './lib/game/map'
+require './lib/game/entity'
+require './lib/game/camera'
 
 GAME = Game.load('./config.yml')
 
