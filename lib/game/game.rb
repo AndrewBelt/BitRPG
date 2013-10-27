@@ -21,13 +21,14 @@ class Game
 		zoom = display_conf['zoom']
 		@framerate = display_conf['framerate']
 		
-		display_size = [screen_size[0] * zoom, screen_size[1] * zoom]
+		display_size = [screen_size.x * zoom, screen_size.y * zoom]
 		@display = Display.new(display_size)
 		
 		@queue = EventQueue.new
 		@queue.register_display(@display)
 		@queue.register_keyboard
 		
+		# Create screen
 		screen_bitmap = Bitmap.new(screen_size)
 		@screen = Sprite.new(screen_bitmap)
 		@screen.zoom = zoom
@@ -90,23 +91,12 @@ class Game
 	
 	def check_events
 		@queue.each do |event|
-			if event.type == :close
-				@running = false
-			end
-			
-			if event.type == :key_down and event.key == :escape
-				@running = false
-			end
-			
-			if @state
-				@state.check_event(event)
-			end
+			stop if event.type == :close
+			@state.check_event(event) if @state
 		end
 	end
 	
 	def advance_frame
-		if @state
-			@state.advance_frame
-		end
+		@state.advance_frame if @state
 	end
 end

@@ -47,3 +47,15 @@ class Bitmap
 	# Creates a new bitmap and copies a rectangular portion of self's bitmap
 	# def clip(position, size); end
 end
+
+
+class Color
+	attr_accessor :r
+	attr_accessor :g
+	attr_accessor :b
+	attr_accessor :a
+	
+	def initialize(r=0, g=0, b=0, a=1)
+		@r, @g, @b, @a = r, g, b, a
+	end
+end

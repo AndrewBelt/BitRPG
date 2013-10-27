@@ -5,16 +5,18 @@
 
 
 static VALUE bitmap_c;
+ALLEGRO_COLOR color_map(VALUE color);
 
 
-static
-void bitmap_free(void *p)
+static void
+bitmap_free(void *p)
 {
 	if (p)
 		al_destroy_bitmap(p);
 }
 
-VALUE bitmap_new(VALUE cls, VALUE size)
+VALUE
+bitmap_new(VALUE cls, VALUE size)
 {
 	int width = NUM2INT(rb_ary_entry(size, 0));
 	int height = NUM2INT(rb_ary_entry(size, 1));
@@ -28,7 +30,8 @@ VALUE bitmap_new(VALUE cls, VALUE size)
 	return obj;
 }
 
-VALUE bitmap_load(VALUE cls, VALUE filename)
+VALUE
+bitmap_load(VALUE cls, VALUE filename)
 {
 	char *filename_str = rb_string_value_cstr(&filename);
 	ALLEGRO_BITMAP *bitmap = al_load_bitmap(filename_str);
@@ -40,21 +43,24 @@ VALUE bitmap_load(VALUE cls, VALUE filename)
 	return obj;
 }
 
-VALUE bitmap_activate(VALUE self)
+VALUE
+bitmap_activate(VALUE self)
 {
 	ALLEGRO_BITMAP *bitmap = RDATA(self)->data;
 	al_set_target_bitmap(bitmap);
 	return Qnil;
 }
 
-VALUE bitmap_clear(VALUE self)
+VALUE
+bitmap_clear(VALUE self)
 {
 	bitmap_activate(self);
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 	return Qnil;
 }
 
-VALUE bitmap_size(VALUE self)
+VALUE
+bitmap_size(VALUE self)
 {
 	ALLEGRO_BITMAP *bitmap = RDATA(self)->data;
 	int width = al_get_bitmap_width(bitmap);
@@ -64,7 +70,8 @@ VALUE bitmap_size(VALUE self)
 	return size;
 }
 
-VALUE bitmap_blit(int argc, VALUE *argv, VALUE self)
+VALUE
+bitmap_blit(int argc, VALUE *argv, VALUE self)
 {
 	ALLEGRO_BITMAP *bitmap = RDATA(self)->data;
 	int dx = 0;
@@ -98,7 +105,8 @@ VALUE bitmap_blit(int argc, VALUE *argv, VALUE self)
 	return Qnil;
 }
 
-VALUE bitmap_clip(VALUE self, VALUE position, VALUE size)
+VALUE
+bitmap_clip(VALUE self, VALUE position, VALUE size)
 {
 	ALLEGRO_BITMAP *bitmap = RDATA(self)->data;
 	int x = NUM2INT(rb_ary_entry(position, 0));
@@ -117,7 +125,19 @@ VALUE bitmap_clip(VALUE self, VALUE position, VALUE size)
 	return obj;
 }
 
-void Init_graphics()
+ALLEGRO_COLOR
+color_map(VALUE color)
+{
+	float r = NUM2DBL(rb_iv_get(color, "@r"));
+	float g = NUM2DBL(rb_iv_get(color, "@g"));
+	float b = NUM2DBL(rb_iv_get(color, "@b"));
+	float a = NUM2DBL(rb_iv_get(color, "@a"));
+	
+	return al_map_rgba_f(r, g, b, a);
+}
+
+void
+Init_graphics()
 {
 	rb_require("./lib/core/graphics");
 	
