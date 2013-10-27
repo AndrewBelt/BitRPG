@@ -43,23 +43,18 @@ class Map < State
 		tilesets = {}
 		
 		data['tilesets'].each do |tileset_data|
-			name = tileset_data['name']
-			next if name == 'collision'
+			# Convert Tiled tileset data to BitRPG tileset data
 			
-			image_filename = tileset_data['image']
-			image_size = [tileset_data['imagewidth'], tileset_data['imageheight']]
-			tile_size = [tileset_data['tilewidth'], tileset_data['tileheight']]
-			margin = tileset_data['margin']
-			spacing = tileset_data['spacing']
+			tileset_data2 = {
+				'image' => tileset_data['image'],
+				'tile_size' => [
+					tileset_data['tilewidth'],
+					tileset_data['tileheight']],
+					'margin' => tileset_data['margin'],
+					'spacing' => tileset_data['spacing']
+			}
 			
-			tileset_bitmap = Bitmap.find(image_filename)
-			
-			unless tileset_bitmap.size == image_size
-				raise "Tileset '#{name}' is the wrong size"
-			end
-			
-			tileset = Tileset.new(tileset_bitmap, tile_size, margin, spacing)
-			
+			tileset = Tileset.new(tileset_data2)
 			first_gid = tileset_data['firstgid']
 			tilesets[first_gid] = tileset
 		end
@@ -71,6 +66,11 @@ class Map < State
 		data['layers'].each do |layer_data|
 			next unless layer_data['visible'] == true
 			next unless layer_data['type'] == 'tilelayer'
+			
+			# TODO
+			# Handle collision layers properly
+			name = layer_data['name']
+			next if name == 'collision'
 			
 			name = layer_data['name']
 			layer_size = [layer_data['width'], layer_data['height']]

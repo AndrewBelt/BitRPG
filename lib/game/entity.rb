@@ -12,15 +12,21 @@ end
 
 # A tile with animation
 class Entity < Tile
-	attr_accessor :name
-	
-	def self.find(name)
-		path = File.realpath("#{name}.yml", 'entities')
-		data = YAML.load_file(path)
-		Entity.new(data)
-	end
+	# def self.find(name)
+	# 	path = File.realpath("#{name}.yml", 'entities')
+	# 	data = YAML.load_file(path)
+	# 	Entity.new(data)
+	# end
 	
 	def initialize(data)
+		super()
+		
+		tileset_name = data['tileset']
+		object_name = data['object']
+		
+		tileset = Tileset.find(tileset_name)
+		@bitmap = tileset.object(object_name)
+		
 		# TODO
 		# Decide on a schema for the data
 		

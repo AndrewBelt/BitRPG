@@ -1,4 +1,5 @@
 require './lib/core/draw_target'
+require './lib/core/tileset'
 
 class Bitmap
 	include DrawTarget
@@ -6,17 +7,11 @@ class Bitmap
 	# Original file path if known
 	attr_accessor :path
 	
-	def self.find(filename)
-		path = File.realpath(filename)
+	def self.find(filename, dir=nil)
+		path = File.realpath(filename, dir)
 		
 		# Does this bitmap exist in the ObjectSpace?
-		bitmap = nil
-		ObjectSpace.each_object(self) do |b|
-			if b.path == path
-				bitmap = b
-				break
-			end
-		end
+		bitmap = ObjectSpace.each_object(self).find {|b| b.path == path}
 		
 		# Load the bitmap if not
 		unless bitmap
