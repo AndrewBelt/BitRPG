@@ -1,4 +1,4 @@
-require './lib/core/tileset'
+require './lib/game/tileset'
 require './lib/game/state'
 require './lib/game/entity'
 require 'json'

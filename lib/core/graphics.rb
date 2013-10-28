@@ -1,5 +1,4 @@
 require './lib/core/draw_target'
-require './lib/core/tileset'
 
 class Bitmap
 	include DrawTarget

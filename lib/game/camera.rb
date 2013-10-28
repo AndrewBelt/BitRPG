@@ -8,8 +8,8 @@ end
 class StaticCamera < Camera
 	attr_accessor :center
 	
-	def initialize(center)
-		@center = center or [0, 0]
+	def initialize(center=[0, 0])
+		@center = center
 	end
 end
 

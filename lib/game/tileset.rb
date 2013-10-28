@@ -1,4 +1,5 @@
 require './lib/core/sprite'
+require './lib/game/entity'
 require 'yaml'
 
 class Tileset
@@ -34,9 +35,9 @@ class Tileset
 		path = File.realpath(data['image'])
 		@bitmap = Bitmap.load(path)
 		@tile_size = data['tile_size']
-		@margin = data['margin']
-		@spacing = data['spacing']
-		@entities = data['entities']
+		@margin = data.fetch('margin', 0)
+		@spacing = data.fetch('spacing', 0)
+		entities = data.fetch('entities', {})
 		
 		# Defaults
 		@margin = 0 unless @margin
@@ -52,9 +53,13 @@ class Tileset
 		
 		# TODO
 		# Load Entities and Characters from data
+		
+		entities.each do |entity_name, entity_data|
+			Entity::Type.all[entity_name] = Entity::Type.new(entity_data, self)
+		end
 	end
 	
-	def at(coords, tiles=[1, 1])
+	def at(coords, size=[1, 1])
 		sprite = Sprite.new(@bitmap)
 		
 		sprite.position = [
@@ -62,8 +67,8 @@ class Tileset
 			@margin + (@tile_size.y + @spacing) * coords.y]
 		
 		sprite.size = [
-			tiles.x * @tile_size.x,
-			tiles.y * @tile_size.y]
+			size.x * @tile_size.x,
+			size.y * @tile_size.y]
 		
 		# TODO
 		# Error checking
