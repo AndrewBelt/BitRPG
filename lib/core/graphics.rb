@@ -4,23 +4,7 @@ require './lib/core/tileset'
 class Bitmap
 	include DrawTarget
 	
-	# Original file path if known
-	attr_accessor :path
-	
-	def self.find(filename, dir=nil)
-		path = File.realpath(filename, dir)
-		
-		# Does this bitmap exist in the ObjectSpace?
-		bitmap = ObjectSpace.each_object(self).find {|b| b.path == path}
-		
-		# Load the bitmap if not
-		unless bitmap
-			bitmap = self.load(path)
-			bitmap.path = path
-		end
-		
-		bitmap
-	end
+	attr_reader :parent
 	
 	# def self.new(size); end
 	
@@ -37,10 +21,11 @@ class Bitmap
 	# def size; end
 	
 	# Draws the bitmap to the currently activated DrawTarget
-	# def blit(position=[0, 0], zoom=1); end
+	# def blit(source_position, source_size, position, zoom); end
 	
-	# Creates a new bitmap and copies a rectangular portion of self's bitmap
-	# def clip(position, size); end
+	# Creates a bitmap which references a rectangular portion
+	# of self
+	# def sub(position, size); end
 end
 
 

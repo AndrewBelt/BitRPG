@@ -9,7 +9,7 @@ def repl
 			input = gets
 			break unless input
 			result = eval(input)
-			puts result if result
+			p result if result
 		rescue => e
 			puts e
 			puts e.backtrace

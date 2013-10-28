@@ -1,3 +1,4 @@
+require './lib/core/sprite'
 require 'yaml'
 
 class Tileset
@@ -9,66 +10,83 @@ class Tileset
 	attr_reader :spacing
 	attr_reader :sheet_size
 	
+	# name => Tileset
+	@all = {}
+	
 	class << self
-		def find(name)
-			path = File.realpath("#{name}.yml", 'tilesets')
+		attr_reader :all
+		
+		def from_yaml(filename)
+			path = File.realpath(filename)
 			data = YAML.load_file(path)
-			Tileset.new(data)
+			from_data(data)
+		end
+		
+		def from_data(data)
+			data.each do |name, tileset_data|
+				@all[name] = Tileset.new(tileset_data)
+			end
 		end
 	end
 	
-	def initialize(data, bitmap=nil)
+	def initialize(data)
 		# Look for the bitmap relative to the 'tilesets' directory
-		@bitmap = Bitmap.find(data['image'], 'tilesets')
-		
+		path = File.realpath(data['image'])
+		@bitmap = Bitmap.load(path)
 		@tile_size = data['tile_size']
-		@margin = data['margin'] or 0
-		@spacing = data['spacing'] or 0
-		@objects = data['objects']
+		@margin = data['margin']
+		@spacing = data['spacing']
+		@entities = data['entities']
+		
+		# Defaults
+		@margin = 0 unless @margin
+		@spacing = 0 unless @spacing
 		
 		size = @bitmap.size
-		@sheet_size = [(size.x - 2 * margin + spacing) / (spacing + @tile_size.x),
-			(size.y - 2 * margin + spacing) / (spacing + @tile_size.y)]
+		@sheet_size =
+			[(size.x - 2 * @margin + @spacing) / (@spacing + @tile_size.x),
+			 (size.y - 2 * @margin + @spacing) / (@spacing + @tile_size.y)]
 		
 		# TODO
 		# Check validity of @sheet_size
 		
-		@cached_bitmaps = {}
+		# TODO
+		# Load Entities and Characters from data
 	end
 	
 	def at(coords, tiles=[1, 1])
-		position = [@margin + (@tile_size.x + @spacing) * coords.x,
+		sprite = Sprite.new(@bitmap)
+		
+		sprite.position = [
+			@margin + (@tile_size.x + @spacing) * coords.x,
 			@margin + (@tile_size.y + @spacing) * coords.y]
-		size = [tiles.x * @tile_size.x, tiles.y * @tile_size.y]
+		
+		sprite.size = [
+			tiles.x * @tile_size.x,
+			tiles.y * @tile_size.y]
 		
 		# TODO
 		# Error checking
 		
-		@bitmap.clip(position, size)
+		sprite
 	end
 	
 	# Returns a bitmap by index
 	# The size is assumed to be [1, 1] tiles, so this is useful for
 	# static map tiles.
-	# In addition, bitmaps are cached until the tileset is garbage
-	# collected, so don't use this if the tileset is to be persisted.
+	# In addition, bitmaps are cached for the lifetime of the tileset.
 	def [](id)
-		cached_bitmap = @cached_bitmaps[id]
-		return cached_bitmap if cached_bitmap
-		
 		coords = id.divmod(@sheet_size.x).reverse
-		
-		clipped_bitmap = at(coords)
-		@cached_bitmaps[id] = clipped_bitmap
-		clipped_bitmap
+		at(coords)
 	end
 	
+	# TODO
 	def object(name)
 		obj = @objects[name]
 		raise "Object '#{name}' not found in the tileset" unless obj
 		
 		coords = obj['coords']
-		tiles = obj['size']
+		tiles = obj['tiles']
 		at(coords, tiles)
 	end
 	

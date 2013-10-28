@@ -1,37 +1,38 @@
 require './lib/core/sprite'
 require 'yaml'
 
-class Game
-	class << self
-		def load(filename)
-			config = YAML.load_file(filename)
-			Game.new(config)
-		end
-	end
-	
-	attr_accessor :last_framerate
+module Game
+end
+
+class << Game
+	attr_reader :last_framerate
 	attr_accessor :state
 	alias_method :show, :state=
 	
-	def initialize(config)
+	# Must be called before any methods of Game are used
+	def from_yaml(filename)
+		path = File.realpath(filename)
+		data = YAML.load_file(path)
+		from_data(data)
+	end
+	
+	def from_data(data)
 		# Display
 		
-		display_conf = config['display']
+		display_conf = data['display']
 		screen_size = [display_conf['width'], display_conf['height']]
-		zoom = display_conf['zoom']
+		@zoom = display_conf['zoom']
 		@framerate = display_conf['framerate']
 		
-		display_size = [screen_size.x * zoom, screen_size.y * zoom]
+		display_size = [screen_size.x * @zoom, screen_size.y * @zoom]
 		@display = Display.new(display_size)
 		
 		@queue = EventQueue.new
 		@queue.register_display(@display)
 		@queue.register_keyboard
 		
-		# Create screen
 		screen_bitmap = Bitmap.new(screen_size)
 		@screen = Sprite.new(screen_bitmap)
-		@screen.zoom = zoom
 	end
 	
 	def run
@@ -69,7 +70,8 @@ class Game
 		if @state
 			@screen.bitmap.clear
 			@screen.bitmap.draw(@state)
-			@display.draw(@screen)
+			@display.activate
+			@screen.blit([0, 0], @zoom)
 		end
 		
 		@display.flip

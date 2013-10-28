@@ -5,17 +5,13 @@ File Structure
 Entries in brackets are examples.
 
 root
-- config.yml
+- game.yml
 - scripts
   - main.rb
   - [minish_village.rb]
-- entities
-- characters
-  - [festari.yml]
+- tilesets
+  - [minish_village.png]
 - maps
+  - [minish_village.yml]
 - music
   - [minish_village.ogg]
-- sprites
-  - [maptiles.png]
-  - [characters.gif]
-

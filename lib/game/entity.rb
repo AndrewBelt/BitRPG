@@ -1,8 +1,15 @@
 # A basic object to be displayed on the map
 class Tile
-	attr_accessor :bitmap
+	attr_accessor :sprite
 	attr_accessor :coords
 	alias_method :place, :coords=
+	
+	# TODO
+	# Replace Bitmap#sub with the following accessors
+	
+	# If nil, the entire bitmap is drawn
+	# attr_accessor :bitmap_position
+	# attr_accessor :bitmap_size
 	
 	def initialize
 		@coords = [0, 0]
@@ -12,11 +19,9 @@ end
 
 # A tile with animation
 class Entity < Tile
-	# def self.find(name)
-	# 	path = File.realpath("#{name}.yml", 'entities')
-	# 	data = YAML.load_file(path)
-	# 	Entity.new(data)
-	# end
+	class << self
+		
+	end
 	
 	def initialize(data)
 		super()

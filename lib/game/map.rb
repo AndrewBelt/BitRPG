@@ -12,74 +12,40 @@ class Map < State
 	
 	attr_accessor :camera
 	
-	def initialize
-		clear
-	end
-	
-	def clear
-		@tiles = []
-		@map_size = [0, 0]
-		@tile_size = [0, 0]
-	end
-	
-	def load(name)
-		path = File.realpath("#{name}.json", 'maps')
-		data = JSON.load(File.open(path))
-		load_data(data)
-	end
-	
-	def load_data(data)
-		clear()
-		
-		unless data['orientation'] == 'orthogonal'
-			raise 'Only orthoganal maps are supported'
+	class << self
+		def find(name)
+			path = File.realpath("#{name}.yml", 'maps')
+			data = YAML.load_file(path)
+			Map.new(data)
 		end
-		
-		@map_size = [data['width'], data['height']]
-		@tile_size = [data['tilewidth'], data['tileheight']]
+	end
+	
+	def initialize(data)
+		@tiles = []
+		@map_size = data['map_size']
+		@tile_size = data['tile_size']
 		
 		# Load tilesets
 		
+		# first_gid => Tileset
 		tilesets = {}
 		
-		data['tilesets'].each do |tileset_data|
-			# Convert Tiled tileset data to BitRPG tileset data
-			
-			tileset_data2 = {
-				'image' => tileset_data['image'],
-				'tile_size' => [
-					tileset_data['tilewidth'],
-					tileset_data['tileheight']],
-					'margin' => tileset_data['margin'],
-					'spacing' => tileset_data['spacing']
-			}
-			
-			tileset = Tileset.new(tileset_data2)
-			first_gid = tileset_data['firstgid']
-			tilesets[first_gid] = tileset
+		data['tilesets'].each do |first_gid, tileset_name|
+			tilesets[first_gid] = Tileset.all[tileset_name]
 		end
 		
 		first_gids = tilesets.keys.reverse
 		
 		# Load layers
 		
-		data['layers'].each do |layer_data|
-			next unless layer_data['visible'] == true
-			next unless layer_data['type'] == 'tilelayer'
-			
+		data['layers'].each do |layer, gids|
 			# TODO
 			# Handle collision layers properly
-			name = layer_data['name']
-			next if name == 'collision'
+			next if layer == 'collision'
 			
-			name = layer_data['name']
-			layer_size = [layer_data['width'], layer_data['height']]
-			# Offset is defined by map coords, not pixels
-			offset = [layer_data['x'], layer_data['y']]
-			
-			gids = layer_data['data']
 			gids.each_index do |i|
 				gid = gids[i]
+				# gid of 0 means a blank space
 				next if gid == 0
 				
 				tile = Tile.new
@@ -87,11 +53,9 @@ class Map < State
 				fid = first_gids.find {|fid| fid <= gid}
 				id = gid - fid
 				tileset = tilesets[fid]
-				tile.bitmap = tileset[id]
+				tile.sprite = tileset[id]
 				
-				coords = i.divmod(layer_size.x).reverse
-				coords.x += offset.x
-				coords.y += offset.y
+				coords = i.divmod(@map_size.x).reverse
 				tile.coords = coords
 				
 				@tiles << tile
@@ -114,7 +78,6 @@ class Map < State
 		
 		# TODO
 		# Combine static tile rendering with entities
-		# - Remove sprite (unless needed elsewhere)
 		@tiles.each do |tile|
 			position = [tile.coords.x * @tile_size.x - offset.x,
 				tile.coords.y * @tile_size.y - offset.y]
@@ -122,7 +85,7 @@ class Map < State
 			# TODO
 			# Draw only if the bitmap is in the boundary
 			
-			tile.bitmap.blit(position)
+			tile.sprite.blit(position)
 		end
 	end
 	
