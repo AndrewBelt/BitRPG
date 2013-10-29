@@ -2,9 +2,12 @@
 TODO
 ===
 
+Map
+- Make Map global
+  - Map.load
+  - Map.clear
+
 Character
-- animation schema for entity
-- walking animation schema for character
 - behaviors
 - map should pass events to its PlayerBehavior
 
@@ -12,6 +15,10 @@ Standardize the Rails-like automatic searching of
 - scripts
 - Maps
 - etc
+
+Vectors
+- Change everything from [x, y] pairs to Vectors
+- Make sure their use is mostly hidden from the scripting context
 
 GUI
 - Font

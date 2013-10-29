@@ -1,12 +1,16 @@
 class Behavior
-	def advance_frame; end
+	def behave(character)
+	end
 end
 
 
 class PlayerBehavior < Behavior
 	attr_accessor :player
 	
-	def check_event
+	def behave
+	end
+	
+	def request_direction(direction)
 		# TODO
 	end
 	

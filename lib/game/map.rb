@@ -1,7 +1,8 @@
 require './lib/game/tileset'
 require './lib/game/state'
 require './lib/game/entity'
-require 'json'
+require './lib/game/behavior'
+require 'yaml'
 
 class Map < State
 	# The number of map tiles composing the map
@@ -9,6 +10,9 @@ class Map < State
 	
 	# The pixel dimensions of each tile
 	attr_reader :tile_size # [Integer, Integer]
+	
+	attr_reader :map_tiles
+	attr_reader :entities
 	
 	attr_accessor :camera
 	
@@ -21,7 +25,9 @@ class Map < State
 	end
 	
 	def initialize(data)
-		@tiles = []
+		@map_tiles = []
+		@entities = []
+		
 		@map_size = data['map_size']
 		@tile_size = data['tile_size']
 		
@@ -55,16 +61,25 @@ class Map < State
 				tileset = tilesets[fid]
 				tile.sprite = tileset[id]
 				
-				coords = i.divmod(@map_size.x).reverse
-				tile.coords = coords
+				position = i.divmod(@map_size.x).reverse
+				tile.position = position
 				
-				@tiles << tile
+				@map_tiles << tile
 			end
 		end
 	end
 	
-	def add(tile, layer=1)
-		@tiles << tile
+	def add(entity, layer=1)
+		@entities << entity
+	end
+	
+	# Returns a sorted list of all Tiles, Entities, Characters, etc
+	# for rendering
+	def all_tiles
+		# TODO
+		# Sort by z-order
+		
+		@map_tiles + @entities
 	end
 	
 	def draw_to(target)
@@ -78,9 +93,9 @@ class Map < State
 		
 		# TODO
 		# Combine static tile rendering with entities
-		@tiles.each do |tile|
-			position = [tile.coords.x * @tile_size.x - offset.x,
-				tile.coords.y * @tile_size.y - offset.y]
+		all_tiles.each do |tile|
+			position = [tile.position.x * @tile_size.x - offset.x,
+				tile.position.y * @tile_size.y - offset.y]
 			
 			# TODO
 			# Draw only if the bitmap is in the boundary
@@ -90,8 +105,16 @@ class Map < State
 	end
 	
 	def check_event(event)
+		# if event.type == :key_down
+		# 	if [:up, :down, :left, :right].include?(event.key)
+		# 		@player.play(event.key.to_s)
+		# 	end
+		# end
 	end
 	
 	def advance_frame
+		@entities.each do |entity|
+			entity.advance_frame
+		end
 	end
 end

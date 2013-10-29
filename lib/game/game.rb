@@ -40,7 +40,7 @@ class << Game
 		# script_thread = Thread.new do
 		# 	load './scripts/start.rb'
 		# end
-		load './scripts/start.rb'
+		Kernel::load './scripts/start.rb'
 		
 		@running = true
 		# script_thread.run

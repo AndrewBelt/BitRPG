@@ -6,7 +6,7 @@ require './lib/game/map'
 require './lib/game/entity'
 require './lib/game/camera'
 
-Game.from_yaml('./game.yml')
+Game.from_yaml('./config.yml')
 Tileset.from_yaml('./tilesets.yml')
 
 # The REPL thread

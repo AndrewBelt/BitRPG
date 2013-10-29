@@ -1,5 +1,6 @@
 require './lib/core/sprite'
 require './lib/game/entity'
+require './lib/game/character'
 require 'yaml'
 
 class Tileset
@@ -37,7 +38,6 @@ class Tileset
 		@tile_size = data['tile_size']
 		@margin = data.fetch('margin', 0)
 		@spacing = data.fetch('spacing', 0)
-		entities = data.fetch('entities', {})
 		
 		# Defaults
 		@margin = 0 unless @margin
@@ -51,11 +51,15 @@ class Tileset
 		# TODO
 		# Check validity of @sheet_size
 		
-		# TODO
-		# Load Entities and Characters from data
-		
+		entities = data.fetch('entities', {})
 		entities.each do |entity_name, entity_data|
 			Entity::Type.all[entity_name] = Entity::Type.new(entity_data, self)
+		end
+		
+		characters = data.fetch('characters', {})
+		characters.each do |character_name, character_data|
+			Character::Type.all[character_name] =
+				Character::Type.new(character_data, self)
 		end
 	end
 	
