@@ -3,6 +3,8 @@
 #include <ruby.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
 #include "bitrpg.h"
 
 
@@ -32,15 +34,21 @@ print_exception(VALUE exc)
 	rb_funcall(rb_cObject, rb_intern("puts"), 1, backtrace);
 }
 
+void
+init_allegro()
+{
+	check_error(!al_init());
+	check_error(!al_init_image_addon());
+	check_error(!al_install_keyboard());
+	al_init_font_addon();
+	al_init_ttf_addon();
+}
+
 int
 main(int argc, char **argv)
 {
 	int error;
-	
-	// Initialize Allegro
-	check_error(!al_init());
-	check_error(!al_init_image_addon());
-	check_error(!al_install_keyboard());
+	init_allegro();
 	
 	// Initialize Ruby
 	ruby_init();

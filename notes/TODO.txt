@@ -7,6 +7,9 @@ Map
   - Map.load
   - Map.clear
 
+Game
+- Add global controls methods
+
 Character
 - behaviors
 - map should pass events to its PlayerBehavior

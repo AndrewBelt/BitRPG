@@ -1,11 +1,7 @@
-#include <stdbool.h>
-#include <ruby.h>
-#include <allegro5/allegro.h>
 #include "bitrpg.h"
 
 
 static VALUE bitmap_c;
-ALLEGRO_COLOR color_map(VALUE color);
 
 
 static void
@@ -37,7 +33,7 @@ bitmap_load(VALUE cls, VALUE filename)
 	ALLEGRO_BITMAP *bitmap = al_load_bitmap(filename_str);
 	
 	if (!bitmap)
-		rb_raise(rb_eIOError, "Could not open bitmap '%s'", filename_str);
+		rb_raise(rb_eIOError, "Could not load bitmap '%s'", filename_str);
 	
 	VALUE obj = rb_data_object_alloc(cls, bitmap, NULL, bitmap_free);
 	return obj;

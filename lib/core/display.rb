@@ -1,4 +1,4 @@
-require './lib/core/draw_target'
+require './lib/core/graphics'
 
 class Display
 	include DrawTarget

@@ -1,5 +1,3 @@
-#include <ruby.h>
-#include <allegro5/allegro.h>
 #include "bitrpg.h"
 
 

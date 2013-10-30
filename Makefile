@@ -1,12 +1,14 @@
 CFLAGS = -Wall -g -O2 -std=c99 \
-	-I/usr/local/include/ruby-2.0.0 \
-	-I/usr/local/include/ruby-2.0.0/x86_64-darwin11.4.2
+	-I/usr/include/ruby-2.0.0 \
+	-I/usr/include/ruby-2.0.0/x86_64-linux/
 
 LDFLAGS = -L/usr/local/lib \
 	-lallegro \
 	-lallegro_main \
 	-lallegro_image \
 	-lallegro_color \
+	-lallegro_font \
+	-lallegro_ttf \
 	-lruby
 
 OBJS = \
@@ -14,7 +16,8 @@ OBJS = \
 	src/bitrpg.o \
 	src/display.o \
 	src/graphics.o \
-	src/events.o
+	src/events.o \
+	src/gui.o
 
 all: bin/bitrpg
 

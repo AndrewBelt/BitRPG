@@ -33,6 +33,9 @@ class << Game
 		
 		screen_bitmap = Bitmap.new(screen_size)
 		@screen = Sprite.new(screen_bitmap)
+		
+		# TEMP
+		@font = Font.new('fonts/visitor1.ttf', 20)
 	end
 	
 	def run
@@ -70,6 +73,10 @@ class << Game
 		if @state
 			@screen.bitmap.clear
 			@screen.bitmap.draw(@state)
+			
+			# TEMP
+			@font.blit("BitRPG", Color.new(1, 1, 1), [0, 0])
+			
 			@display.activate
 			@screen.blit([0, 0], @zoom)
 		end

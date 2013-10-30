@@ -14,6 +14,7 @@ class Map < State
 	attr_reader :map_tiles
 	attr_reader :entities
 	
+	attr_accessor :player
 	attr_accessor :camera
 	
 	class << self
@@ -105,11 +106,11 @@ class Map < State
 	end
 	
 	def check_event(event)
-		# if event.type == :key_down
-		# 	if [:up, :down, :left, :right].include?(event.key)
-		# 		@player.play(event.key.to_s)
-		# 	end
-		# end
+		if event.type == :key_down
+			if [:up, :down, :left, :right].include?(event.key)
+				@player.walk(event.key) if @player
+			end
+		end
 	end
 	
 	def advance_frame

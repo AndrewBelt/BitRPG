@@ -1,7 +1,6 @@
-#include <ruby.h>
-#include <ruby/encoding.h>
-#include <allegro5/allegro.h>
 #include "bitrpg.h"
+#include <ruby/encoding.h>
+
 
 static rb_encoding *utf8_encoding;
 

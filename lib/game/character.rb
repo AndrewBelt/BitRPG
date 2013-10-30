@@ -90,6 +90,6 @@ class Character::Type < Entity::Type
 	def initialize(data, tileset)
 		super
 		
-		@slowness = data['slowness']
+		@slowness = data.fetch('slowness', 1)
 	end
 end
