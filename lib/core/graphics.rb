@@ -1,3 +1,6 @@
+require 'matrix'
+require './lib/core/util'
+
 
 # Thanks to SFML for the idea of reversing the direction
 # of the target and the drawable.
@@ -36,7 +39,7 @@ class Bitmap
 	# def size; end
 	
 	# Draws the bitmap to the currently activated DrawTarget
-	# def blit(source_position, source_size, position, zoom); end
+	# def blit(sx, sy, sw, sh, x, y, zoom); end
 	
 	# Creates a bitmap which references a rectangular portion
 	# of self

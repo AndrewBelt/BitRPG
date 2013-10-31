@@ -10,11 +10,11 @@ class Sprite
 	
 	def initialize(bitmap)
 		@bitmap = bitmap
-		@position = [0, 0]
+		@position = Vector[0, 0]
 		@size = @bitmap.size
 	end
 	
-	def blit(position=[0, 0], zoom=1)
-		@bitmap.blit(@position, @size, position, zoom)
+	def blit(x=0, y=0, zoom=1)
+		@bitmap.blit(position.x, position.y, size.x, size.y, x, y, zoom)
 	end
 end

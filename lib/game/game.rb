@@ -20,11 +20,11 @@ class << Game
 		# Display
 		
 		display_conf = data['display']
-		screen_size = [display_conf['width'], display_conf['height']]
+		screen_size = Vector[display_conf['width'], display_conf['height']]
 		@zoom = display_conf['zoom']
 		@framerate = display_conf['framerate']
 		
-		display_size = [screen_size.x * @zoom, screen_size.y * @zoom]
+		display_size = screen_size * @zoom
 		@display = Display.new(display_size)
 		
 		@queue = EventQueue.new
@@ -33,9 +33,6 @@ class << Game
 		
 		screen_bitmap = Bitmap.new(screen_size)
 		@screen = Sprite.new(screen_bitmap)
-		
-		# TEMP
-		@font = Font.new('fonts/visitor1.ttf', 20)
 	end
 	
 	def run
@@ -73,12 +70,8 @@ class << Game
 		if @state
 			@screen.bitmap.clear
 			@screen.bitmap.draw(@state)
-			
-			# TEMP
-			@font.blit("BitRPG", Color.new(1, 1, 1), [0, 0])
-			
 			@display.activate
-			@screen.blit([0, 0], @zoom)
+			@screen.blit(0, 0, @zoom)
 		end
 		
 		@display.flip

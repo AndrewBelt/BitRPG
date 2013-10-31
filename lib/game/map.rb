@@ -29,8 +29,8 @@ class Map < State
 		@map_tiles = []
 		@entities = []
 		
-		@map_size = data['map_size']
-		@tile_size = data['tile_size']
+		@map_size = Vector[data.fetch('map_size')]
+		@tile_size = Vector[data.fetch('tile_size')]
 		
 		# Load tilesets
 		
@@ -62,8 +62,8 @@ class Map < State
 				tileset = tilesets[fid]
 				tile.sprite = tileset[id]
 				
-				position = i.divmod(@map_size.x).reverse
-				tile.position = position
+				position_y, position_x = i.divmod(@map_size.x)
+				tile.position = Vector[position_x, position_y]
 				
 				@map_tiles << tile
 			end

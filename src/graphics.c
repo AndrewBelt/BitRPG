@@ -2,6 +2,7 @@
 
 
 static VALUE bitmap_c;
+static ID ref_id;
 
 
 static void
@@ -62,26 +63,32 @@ bitmap_size(VALUE self)
 	int width = al_get_bitmap_width(bitmap);
 	int height = al_get_bitmap_height(bitmap);
 	
-	VALUE size = rb_ary_new3(2, INT2NUM(width), INT2NUM(height));
+	VALUE vector_c = rb_const_get(rb_cObject, rb_intern("Vector"));
+	VALUE size = rb_funcall(vector_c, rb_intern("[]"), 2,
+		INT2NUM(width), INT2NUM(height));
 	return size;
 }
 
 VALUE
-bitmap_blit(VALUE self,
-	VALUE source_position, VALUE source_size, VALUE position, VALUE zoom)
+bitmap_blit(int argc, VALUE *argv, VALUE self)
 {
-	ALLEGRO_BITMAP *bitmap = RDATA(self)->data;
-	int sx = NUM2INT(rb_ary_entry(source_position, 0));
-	int sy = NUM2INT(rb_ary_entry(source_position, 1));
-	int sw = NUM2INT(rb_ary_entry(source_size, 0));
-	int sh = NUM2INT(rb_ary_entry(source_size, 1));
-	int dx = NUM2INT(rb_ary_entry(position, 0));
-	int dy = NUM2INT(rb_ary_entry(position, 1));
-	int z = NUM2INT(zoom);
+	// TODO
+	// Put in default values instead of silently failing
+	if (argc < 7)
+		return Qnil;
 	
-	int dw = sw * z;
-	int dh = sh * z;
-	al_draw_scaled_bitmap(bitmap, sx, sy, sw, sh, dx, dy, dw, dh, 0);
+	ALLEGRO_BITMAP *bitmap = RDATA(self)->data;
+	int sx = NUM2INT(argv[0]);
+	int sy = NUM2INT(argv[1]);
+	int sw = NUM2INT(argv[2]);
+	int sh = NUM2INT(argv[3]);
+	int x = NUM2INT(argv[4]);
+	int y = NUM2INT(argv[5]);
+	int zoom = NUM2INT(argv[6]);
+	
+	int w = sw * zoom;
+	int h = sh * zoom;
+	al_draw_scaled_bitmap(bitmap, sx, sy, sw, sh, x, y, w, h, 0);
 	
 	return Qnil;
 }
@@ -131,6 +138,9 @@ Init_graphics()
 	rb_define_method(bitmap_c, "activate", bitmap_activate, 0);
 	rb_define_method(bitmap_c, "clear", bitmap_clear, 0);
 	rb_define_method(bitmap_c, "size", bitmap_size, 0);
-	rb_define_method(bitmap_c, "blit", bitmap_blit, 4);
+	rb_define_method(bitmap_c, "blit", bitmap_blit, -1);
 	rb_define_method(bitmap_c, "clip", bitmap_clip, 2);
+	
+	// Globals
+	ref_id = rb_intern("[]");
 }

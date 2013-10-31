@@ -35,18 +35,15 @@ class Tileset
 		# Look for the bitmap relative to the 'tilesets' directory
 		path = File.realpath(data['image'])
 		@bitmap = Bitmap.load(path)
-		@tile_size = data['tile_size']
-		@margin = data.fetch('margin', 0)
-		@spacing = data.fetch('spacing', 0)
+		@tile_size = Vector.elements(data.fetch('tile_size'))
+		margin = data.fetch('margin', 0)
+		spacing = data.fetch('spacing', 0)
 		
-		# Defaults
-		@margin = 0 unless @margin
-		@spacing = 0 unless @spacing
+		@margin = Vector[margin, margin]
+		@spacing = Vector[spacing, spacing]
 		
-		size = @bitmap.size
-		@sheet_size =
-			[(size.x - 2 * @margin + @spacing) / (@spacing + @tile_size.x),
-			 (size.y - 2 * @margin + @spacing) / (@spacing + @tile_size.y)]
+		@sheet_size = (@bitmap.size - 2 * @margin + @spacing).div(
+			@spacing + @tile_size)
 		
 		# TODO
 		# Check validity of @sheet_size
@@ -63,16 +60,11 @@ class Tileset
 		end
 	end
 	
-	def at(coords, size=[1, 1])
+	def at(coords, size=Vector[1, 1])
 		sprite = Sprite.new(@bitmap)
 		
-		sprite.position = [
-			@margin + (@tile_size.x + @spacing) * coords.x,
-			@margin + (@tile_size.y + @spacing) * coords.y]
-		
-		sprite.size = [
-			size.x * @tile_size.x,
-			size.y * @tile_size.y]
+		sprite.position = @margin + (@tile_size + @spacing).mul(@coords)
+		sprite.size = @tile_size.mul(size)
 		
 		# TODO
 		# Error checking
@@ -85,8 +77,8 @@ class Tileset
 	# static map tiles.
 	# In addition, bitmaps are cached for the lifetime of the tileset.
 	def [](id)
-		coords = id.divmod(@sheet_size.x).reverse
-		at(coords)
+		y, x = id.divmod(@sheet_size.x)
+		at(Vector[x, y])
 	end
 	
 	# TODO
