@@ -6,6 +6,8 @@ require './lib/game/camera'
 require 'yaml'
 
 module Map
+	include DrawTarget
+	include Drawable
 end
 
 class << Map
@@ -21,7 +23,7 @@ class << Map
 	attr_accessor :player # Character
 	attr_accessor :camera # Camera
 	
-	attr_accessor :background_color
+	attr_accessor :background_color # Color
 	
 	def clear
 		@map_tiles = []
@@ -58,10 +60,13 @@ class << Map
 		# Load layers
 		
 		data['layers'].each do |layer, gids|
-			# TODO
-			# Handle collision layers properly
-			next if layer == 'collision'
+			# Collision layer
+			if layer == 'collision'
+				@collisions = gids.collect {|gid| gid != 0}
+				next
+			end
 			
+			# Tile layer
 			gids.each_index do |index|
 				gid = gids[index]
 				# gid of 0 means a blank space
@@ -121,7 +126,7 @@ class << Map
 	def check_event(event)
 		if event.type == :key_down
 			if [:up, :down, :left, :right].include?(event.key)
-				@player.walk(event.key) if @player
+				@player.walk(event.key, false) if @player
 			end
 		end
 	end

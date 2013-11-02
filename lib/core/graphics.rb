@@ -15,14 +15,12 @@ end
 
 
 module Drawable
-	def draw_to(target); end
+	def draw_to(target, *args); end
 end
 
 
 class Bitmap
 	include DrawTarget
-	
-	attr_reader :parent
 	
 	# def self.new(size); end
 	
@@ -52,4 +50,10 @@ class Color
 	def initialize(r=0, g=0, b=0, a=1)
 		@r, @g, @b, @a = r, g, b, a
 	end
+	
+	BLACK = Color.new(0, 0, 0)
+	WHITE = Color.new(1, 1, 1)
+	RED   = Color.new(1, 0, 0)
+	GREEN = Color.new(0, 1, 0)
+	BLUE  = Color.new(0, 0, 1)
 end

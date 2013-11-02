@@ -12,10 +12,9 @@ class Font
 		# def load(filename, size); end
 	end
 	
-	# def blit(color, position, text); end
+	# def blit(color, x, y, text); end
 end
 
 
 class Text
-	
 end

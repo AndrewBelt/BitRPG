@@ -1,5 +1,8 @@
 # Combines a sprite with a coordinate position on the map
 class Tile
+	# Only drawable on Maps
+	include Drawable
+	
 	attr_accessor :sprite
 	attr_accessor :position
 	
@@ -10,6 +13,6 @@ class Tile
 	
 	# Simple setter for @position
 	def place(x, y)
-		self.position = Vector.elements([x, y])
+		@position = Vector.elements([x, y])
 	end
 end

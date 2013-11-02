@@ -68,6 +68,7 @@ class << Game
 	
 	def stop
 		@running = false
+		nil
 	end
 	
 	alias_method :quit, :stop

@@ -26,15 +26,15 @@ font_load(VALUE cls, VALUE filename, VALUE size)
 }
 
 VALUE
-font_blit(VALUE self, VALUE text, VALUE color, VALUE position)
+font_blit(VALUE self, VALUE color, VALUE x, VALUE y, VALUE text)
 {
 	ALLEGRO_FONT *font = RDATA(self)->data;
 	char *text_str = rb_string_value_cstr(&text);
 	ALLEGRO_COLOR alleg_color = value_to_color(color);
-	float x = NUM2DBL(rb_ary_entry(position, 0));
-	float y = NUM2DBL(rb_ary_entry(position, 1));
+	float dx = NUM2DBL(x);
+	float dy = NUM2DBL(y);
 	
-	al_draw_text(font, alleg_color, x, y, ALLEGRO_ALIGN_LEFT, text_str);
+	al_draw_text(font, alleg_color, dx, dy, ALLEGRO_ALIGN_LEFT, text_str);
 	return Qnil;
 }
 
@@ -46,5 +46,5 @@ Init_gui()
 	VALUE font_c = rb_const_get(rb_cObject, rb_intern("Font"));
 	rb_define_singleton_method(font_c, "load", font_load, 2);
 	
-	rb_define_method(font_c, "blit", font_blit, 3);
+	rb_define_method(font_c, "blit", font_blit, 4);
 }

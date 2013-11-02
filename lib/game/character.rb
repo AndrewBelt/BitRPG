@@ -1,4 +1,5 @@
 require './lib/game/entity'
+require 'thread'
 
 # An entity with the ability to walk
 class Character < Entity
@@ -8,6 +9,8 @@ class Character < Entity
 		super
 		
 		@face_direction = :down
+		@walk_mutex = Mutex.new
+		@walk_resource = ConditionVariable.new
 	end
 	
 	# Walking
@@ -54,6 +57,10 @@ class Character < Entity
 				@prev_position = nil
 				@walk_frame = nil
 				
+				@walk_mutex.synchronize do
+					@walk_resource.broadcast
+				end
+				
 				update_walk_animation
 			else
 				offset = prop_offset * velocity
@@ -63,8 +70,14 @@ class Character < Entity
 		end
 	end
 	
-	def walk(direction)
+	def walk(direction, blocking=true)
 		@next_direction = direction
+		
+		if blocking
+			@walk_mutex.synchronize do
+				@walk_resource.wait(@walk_mutex)
+			end
+		end
 	end
 	
 	def update_walk_animation
