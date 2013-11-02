@@ -40,10 +40,6 @@ class Bitmap
 	
 	# Draws the bitmap to the currently activated DrawTarget
 	# def blit(sx, sy, sw, sh, x, y, zoom); end
-	
-	# Creates a bitmap which references a rectangular portion
-	# of self
-	# def sub(position, size); end
 end
 
 

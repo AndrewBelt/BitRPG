@@ -17,11 +17,13 @@ class Vector
 		self[1] = y
 	end
 	
+	# Element-wise multiplication
 	def mul(other)
 		self.map2(other, &:*)
 	end
 	
+	# Element-wise multiplication
 	def div(other)
-		self.map2(other, &:/0
+		self.map2(other, &:/)
 	end
 end

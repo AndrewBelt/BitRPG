@@ -5,16 +5,17 @@ class Sprite
 	
 	# The sprite represents the entire Bitmap if either
 	# of these are nil.
-	attr_accessor :position # [Integer, Integer]
-	attr_accessor :size # [Integer, Integer]
+	attr_accessor :clip_position # Vector
+	attr_accessor :clip_size # Vector
 	
 	def initialize(bitmap)
 		@bitmap = bitmap
-		@position = Vector[0, 0]
-		@size = @bitmap.size
+		@clip_position = Vector[0, 0]
+		@clip_size = @bitmap.size
 	end
 	
-	def blit(x=0, y=0, zoom=1)
-		@bitmap.blit(position.x, position.y, size.x, size.y, x, y, zoom)
+	def blit(position, zoom=1)
+		@bitmap.blit(clip_position.x, clip_position.y,
+			clip_size.x, clip_size.y, position.x, position.y, zoom)
 	end
 end

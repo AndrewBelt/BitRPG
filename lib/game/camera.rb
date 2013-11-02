@@ -1,6 +1,6 @@
 class Camera
 	def center
-		[0, 0]
+		Vector[0, 0]
 	end
 end
 
@@ -8,7 +8,7 @@ end
 class StaticCamera < Camera
 	attr_accessor :center
 	
-	def initialize(center=[0, 0])
+	def initialize(center=Vector[0, 0])
 		@center = center
 	end
 end

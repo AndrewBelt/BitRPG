@@ -5,7 +5,7 @@
 #include <allegro5/allegro.h>
 
 void soft_free(void *);
-ALLEGRO_COLOR color_map(VALUE color);
+ALLEGRO_COLOR value_to_color(VALUE color);
 
 void Init_bitrpg();
 void Init_display();

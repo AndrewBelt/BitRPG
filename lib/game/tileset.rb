@@ -42,8 +42,9 @@ class Tileset
 		@margin = Vector[margin, margin]
 		@spacing = Vector[spacing, spacing]
 		
-		@sheet_size = (@bitmap.size - 2 * @margin + @spacing).div(
-			@spacing + @tile_size)
+		sheet_rect = @bitmap.size - 2 * @margin + @spacing
+		tile_rect = @tile_size + @spacing
+		@sheet_size = sheet_rect.div(tile_rect)
 		
 		# TODO
 		# Check validity of @sheet_size
@@ -60,11 +61,12 @@ class Tileset
 		end
 	end
 	
-	def at(coords, size=Vector[1, 1])
+	def at(coords, sprite_size=Vector[1, 1])
 		sprite = Sprite.new(@bitmap)
 		
-		sprite.position = @margin + (@tile_size + @spacing).mul(@coords)
-		sprite.size = @tile_size.mul(size)
+		tile_rect = @tile_size + @spacing
+		sprite.clip_position = @margin + tile_rect.mul(coords)
+		sprite.clip_size = @tile_size.mul(sprite_size)
 		
 		# TODO
 		# Error checking
@@ -79,16 +81,6 @@ class Tileset
 	def [](id)
 		y, x = id.divmod(@sheet_size.x)
 		at(Vector[x, y])
-	end
-	
-	# TODO
-	def object(name)
-		obj = @objects[name]
-		raise "Object '#{name}' not found in the tileset" unless obj
-		
-		coords = obj['coords']
-		tiles = obj['tiles']
-		at(coords, tiles)
 	end
 	
 	def length

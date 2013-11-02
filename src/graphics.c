@@ -5,6 +5,17 @@ static VALUE bitmap_c;
 static ID ref_id;
 
 
+ALLEGRO_COLOR
+value_to_color(VALUE color)
+{
+	float r = NUM2DBL(rb_iv_get(color, "@r"));
+	float g = NUM2DBL(rb_iv_get(color, "@g"));
+	float b = NUM2DBL(rb_iv_get(color, "@b"));
+	float a = NUM2DBL(rb_iv_get(color, "@a"));
+	
+	return al_map_rgba_f(r, g, b, a);
+}
+
 static void
 bitmap_free(void *p)
 {
@@ -15,8 +26,9 @@ bitmap_free(void *p)
 VALUE
 bitmap_new(VALUE cls, VALUE size)
 {
-	int width = NUM2INT(rb_ary_entry(size, 0));
-	int height = NUM2INT(rb_ary_entry(size, 1));
+	VALUE ref_id = rb_intern("[]");
+	int width = NUM2INT(rb_funcall(size, ref_id, 1, INT2FIX(0)));
+	int height = NUM2INT(rb_funcall(size, ref_id, 1, INT2FIX(1)));
 	
 	ALLEGRO_BITMAP *bitmap = al_create_bitmap(width, height);
 	
@@ -49,10 +61,21 @@ bitmap_activate(VALUE self)
 }
 
 VALUE
-bitmap_clear(VALUE self)
+bitmap_clear(int argc, VALUE *argv, VALUE self)
 {
+	ALLEGRO_COLOR color;
+	
+	if (argc >= 1)
+	{
+		color = value_to_color(argv[0]);
+	}
+	else
+	{
+		color = al_map_rgb(0, 0, 0);
+	}
+	
 	bitmap_activate(self);
-	al_clear_to_color(al_map_rgb(0, 0, 0));
+	al_clear_to_color(color);
 	return Qnil;
 }
 
@@ -93,37 +116,6 @@ bitmap_blit(int argc, VALUE *argv, VALUE self)
 	return Qnil;
 }
 
-VALUE
-bitmap_clip(VALUE self, VALUE position, VALUE size)
-{
-	ALLEGRO_BITMAP *bitmap = RDATA(self)->data;
-	int x = NUM2INT(rb_ary_entry(position, 0));
-	int y = NUM2INT(rb_ary_entry(position, 1));
-	int w = NUM2INT(rb_ary_entry(size, 0));
-	int h = NUM2INT(rb_ary_entry(size, 1));
-	
-	ALLEGRO_BITMAP *bitmap_sub = al_create_sub_bitmap(bitmap, x, y, w, h);
-	ALLEGRO_BITMAP *bitmap_clipped = al_clone_bitmap(bitmap_sub);
-	al_destroy_bitmap(bitmap_sub);
-	
-	if (!bitmap_clipped)
-		rb_raise(rb_eStandardError, "Could not create clipped bitmap");
-	
-	VALUE obj = rb_data_object_alloc(bitmap_c, bitmap_clipped, NULL, bitmap_free);
-	return obj;
-}
-
-ALLEGRO_COLOR
-color_map(VALUE color)
-{
-	float r = NUM2DBL(rb_iv_get(color, "@r"));
-	float g = NUM2DBL(rb_iv_get(color, "@g"));
-	float b = NUM2DBL(rb_iv_get(color, "@b"));
-	float a = NUM2DBL(rb_iv_get(color, "@a"));
-	
-	return al_map_rgba_f(r, g, b, a);
-}
-
 void
 Init_graphics()
 {
@@ -136,10 +128,9 @@ Init_graphics()
 	rb_define_singleton_method(bitmap_c, "load", bitmap_load, 1);
 	
 	rb_define_method(bitmap_c, "activate", bitmap_activate, 0);
-	rb_define_method(bitmap_c, "clear", bitmap_clear, 0);
+	rb_define_method(bitmap_c, "clear", bitmap_clear, -1);
 	rb_define_method(bitmap_c, "size", bitmap_size, 0);
 	rb_define_method(bitmap_c, "blit", bitmap_blit, -1);
-	rb_define_method(bitmap_c, "clip", bitmap_clip, 2);
 	
 	// Globals
 	ref_id = rb_intern("[]");

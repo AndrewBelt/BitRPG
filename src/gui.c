@@ -30,7 +30,7 @@ font_blit(VALUE self, VALUE text, VALUE color, VALUE position)
 {
 	ALLEGRO_FONT *font = RDATA(self)->data;
 	char *text_str = rb_string_value_cstr(&text);
-	ALLEGRO_COLOR alleg_color = color_map(color);
+	ALLEGRO_COLOR alleg_color = value_to_color(color);
 	float x = NUM2DBL(rb_ary_entry(position, 0));
 	float y = NUM2DBL(rb_ary_entry(position, 1));
 	

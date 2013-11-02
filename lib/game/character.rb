@@ -13,10 +13,10 @@ class Character < Entity
 	# Walking
 	
 	VELOCITIES = {
-		:up => [0, -1],
-		:down => [0, 1],
-		:left => [-1, 0],
-		:right => [1, 0]
+		:up =>    Vector[0, -1],
+		:down =>  Vector[0, 1],
+		:left =>  Vector[-1, 0],
+		:right => Vector[1, 0]
 	}
 	
 	def advance_frame
@@ -48,8 +48,7 @@ class Character < Entity
 			if prop_offset >= 1
 				# Done walking
 				prop_offset = 1
-				@position = [@prev_position.x + velocity.x,
-					@prev_position.y + velocity.y]
+				@position = @prev_position + velocity
 				
 				@curr_direction = nil
 				@prev_position = nil
@@ -57,9 +56,8 @@ class Character < Entity
 				
 				update_walk_animation
 			else
-				offset = [prop_offset * velocity.x, prop_offset * velocity.y]
-				@position = [@prev_position.x + offset.x,
-					@prev_position.y + offset.y]
+				offset = prop_offset * velocity
+				@position = @prev_position + offset
 				@walk_frame += 1
 			end
 		end

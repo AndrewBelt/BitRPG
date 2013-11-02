@@ -3,11 +3,13 @@ class Tile
 	attr_accessor :sprite
 	attr_accessor :position
 	
-	def initialize
-		@position = [0, 0]
+	def initialize(sprite=nil)
+		@sprite = sprite
+		@position = Vector[0, 0]
 	end
 	
+	# Simple setter for @position
 	def place(x, y)
-		self.position = [x, y]
+		self.position = Vector.elements([x, y])
 	end
 end

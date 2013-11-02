@@ -1,7 +1,8 @@
-require './lib/game/tileset'
 require './lib/game/state'
+require './lib/game/tileset'
 require './lib/game/entity'
 require './lib/game/behavior'
+require './lib/game/camera'
 require 'yaml'
 
 class Map < State
@@ -29,8 +30,8 @@ class Map < State
 		@map_tiles = []
 		@entities = []
 		
-		@map_size = Vector[data.fetch('map_size')]
-		@tile_size = Vector[data.fetch('tile_size')]
+		@map_size = Vector.elements(data.fetch('map_size'))
+		@tile_size = Vector.elements(data.fetch('tile_size'))
 		
 		# Load tilesets
 		
@@ -50,24 +51,26 @@ class Map < State
 			# Handle collision layers properly
 			next if layer == 'collision'
 			
-			gids.each_index do |i|
-				gid = gids[i]
+			gids.each_index do |index|
+				gid = gids[index]
 				# gid of 0 means a blank space
 				next if gid == 0
-				
-				tile = Tile.new
 				
 				fid = first_gids.find {|fid| fid <= gid}
 				id = gid - fid
 				tileset = tilesets[fid]
-				tile.sprite = tileset[id]
+				tile = Tile.new(tileset[id])
 				
-				position_y, position_x = i.divmod(@map_size.x)
+				position_y, position_x = index.divmod(@map_size.x)
 				tile.position = Vector[position_x, position_y]
 				
 				@map_tiles << tile
 			end
 		end
+		
+		# Set up camera crew
+		
+		@camera = Camera.new
 	end
 	
 	def add(entity, layer=1)
@@ -80,23 +83,22 @@ class Map < State
 		# TODO
 		# Sort by z-order
 		
-		@map_tiles + @entities
+		tiles = []
+		tiles += @map_tiles
+		tiles += @entities
+		tiles
 	end
 	
 	def draw_to(target)
-		center = @camera ? @camera.center : [0, 0]
-		
-		target_size = target.size
-		offset = [center.x * @tile_size.x - target_size.x / 2,
-			center.y * @tile_size.y - target_size.y / 2]
+		center = @camera.center
+		offset = @tile_size.mul(center) - target.size / 2
 		
 		target.activate
 		
 		# TODO
 		# Combine static tile rendering with entities
 		all_tiles.each do |tile|
-			position = [tile.position.x * @tile_size.x - offset.x,
-				tile.position.y * @tile_size.y - offset.y]
+			position = @tile_size.mul(tile.position) - offset
 			
 			# TODO
 			# Draw only if the bitmap is in the boundary

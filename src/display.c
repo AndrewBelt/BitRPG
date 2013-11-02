@@ -10,12 +10,15 @@ void display_free(void *p)
 
 VALUE display_new(VALUE cls, VALUE size)
 {
-	int width = NUM2INT(rb_ary_entry(size, 0));
-	int height = NUM2INT(rb_ary_entry(size, 1));
+	VALUE ref_id = rb_intern("[]");
+	int width = NUM2INT(rb_funcall(size, ref_id, 1, INT2FIX(0)));
+	int height = NUM2INT(rb_funcall(size, ref_id, 1, INT2FIX(1)));
 	
+	// Display configuration
 	al_reset_new_display_options();
 	al_set_new_display_flags(ALLEGRO_WINDOWED);
 	al_set_new_display_option(ALLEGRO_VSYNC, 2, 1);
+	
 	ALLEGRO_DISPLAY *display = al_create_display(width, height);
 	
 	if (!display)
@@ -66,7 +69,9 @@ VALUE display_size(VALUE self)
 	int width = al_get_display_width(display);
 	int height = al_get_display_height(display);
 	
-	VALUE size = rb_ary_new3(2, INT2NUM(width), INT2NUM(height));
+	VALUE vector_c = rb_const_get(rb_cObject, rb_intern("Vector"));
+	VALUE size = rb_funcall(vector_c, rb_intern("[]"), 2,
+		INT2NUM(width), INT2NUM(height));
 	return size;
 }
 

@@ -1,7 +1,7 @@
 require './lib/core/util'
 require './lib/core/repl'
-require './lib/game/tileset'
 require './lib/game/game'
+require './lib/game/tileset'
 require './lib/game/map'
 require './lib/game/entity'
 require './lib/game/camera'

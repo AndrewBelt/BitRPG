@@ -61,11 +61,12 @@ class Entity::Type
 	attr_reader :origin # [Number, Number]
 	
 	def initialize(data, tileset)
-		size = data.fetch('size', [1, 1])
+		size = Vector.elements(data.fetch('size', [1, 1]))
 		
 		@animations = {}
 		data['animations'].each do |animation_name, frames|
-			@animations[animation_name] = frames.collect do |coords|
+			@animations[animation_name] = frames.collect do |coords_ary|
+				coords = Vector.elements(coords_ary)
 				tileset.at(coords, size)
 			end
 		end

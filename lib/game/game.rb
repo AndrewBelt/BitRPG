@@ -5,6 +5,7 @@ module Game
 end
 
 class << Game
+	attr_accessor :framerate
 	attr_reader :last_framerate
 	attr_accessor :state
 	alias_method :show, :state=
@@ -19,10 +20,12 @@ class << Game
 	def from_data(data)
 		# Display
 		
-		display_conf = data['display']
-		screen_size = Vector[display_conf['width'], display_conf['height']]
-		@zoom = display_conf['zoom']
-		@framerate = display_conf['framerate']
+		display_conf = data.fetch('display')
+		screen_size_ary = [display_conf.fetch('width'),
+			display_conf.fetch('height')]
+		screen_size = Vector.elements(screen_size_ary)
+		@zoom = display_conf.fetch('zoom', 1)
+		@framerate = display_conf.fetch('framerate', 0)
 		
 		display_size = screen_size * @zoom
 		@display = Display.new(display_size)
@@ -71,7 +74,7 @@ class << Game
 			@screen.bitmap.clear
 			@screen.bitmap.draw(@state)
 			@display.activate
-			@screen.blit(0, 0, @zoom)
+			@screen.blit(Vector[0, 0], @zoom)
 		end
 		
 		@display.flip
@@ -80,7 +83,7 @@ class << Game
 	def limit_framerate
 		current_time = Time.now
 		
-		if @start_time
+		if @framerate > 0 and @start_time
 			duration = current_time - @start_time
 			sleep_time = 1.0 / @framerate - duration
 			sleep(sleep_time) if sleep_time > 0
