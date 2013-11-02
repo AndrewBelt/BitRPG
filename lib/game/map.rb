@@ -5,38 +5,49 @@ require './lib/game/behavior'
 require './lib/game/camera'
 require 'yaml'
 
-class Map < State
+module Map
+end
+
+class << Map
 	# The number of map tiles composing the map
-	attr_reader :map_size # [Integer, Integer]
+	attr_reader :map_size # Vector
 	
 	# The pixel dimensions of each tile
-	attr_reader :tile_size # [Integer, Integer]
+	attr_reader :tile_size # Vector
 	
-	attr_reader :map_tiles
-	attr_reader :entities
+	attr_reader :map_tiles # [Tile]
+	attr_reader :entities # [Tile]
 	
-	attr_accessor :player
-	attr_accessor :camera
+	attr_accessor :player # Character
+	attr_accessor :camera # Camera
 	
-	class << self
-		def find(name)
-			path = File.realpath("#{name}.yml", 'maps')
-			data = YAML.load_file(path)
-			Map.new(data)
-		end
-	end
+	attr_accessor :background_color
 	
-	def initialize(data)
+	def clear
 		@map_tiles = []
 		@entities = []
+		@background_color = Color.new
+	end
+	
+	def load(name)
+		path = File.realpath("#{name}.yml", 'maps')
+		from_yaml(path)
+	end
+	
+	def from_yaml(path)
+		data = YAML.load_file(path)
+		from_data(data)
+	end
+	
+	def from_data(data)
+		clear()
 		
 		@map_size = Vector.elements(data.fetch('map_size'))
 		@tile_size = Vector.elements(data.fetch('tile_size'))
 		
 		# Load tilesets
 		
-		# first_gid => Tileset
-		tilesets = {}
+		tilesets = {} # {first_gid => Tileset}
 		
 		data['tilesets'].each do |first_gid, tileset_name|
 			tilesets[first_gid] = Tileset.all[tileset_name]
@@ -69,7 +80,6 @@ class Map < State
 		end
 		
 		# Set up camera crew
-		
 		@camera = Camera.new
 	end
 	
@@ -91,9 +101,10 @@ class Map < State
 	
 	def draw_to(target)
 		center = @camera.center
-		offset = @tile_size.mul(center) - target.size / 2
+		offset = @tile_size.mul(center + Vector[0.5, 0.5]) - target.size / 2
 		
 		target.activate
+		target.clear(@background_color)
 		
 		# TODO
 		# Combine static tile rendering with entities

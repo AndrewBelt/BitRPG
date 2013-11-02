@@ -39,14 +39,19 @@ class << Game
 	end
 	
 	def run
-		# The script thread
-		# script_thread = Thread.new do
-		# 	load './scripts/start.rb'
-		# end
-		Kernel::load './scripts/start.rb'
-		
 		@running = true
-		# script_thread.run
+		
+		# The script thread
+		@script_thread = Thread.new do
+			begin
+				Kernel::load './scripts/start.rb'
+			rescue => e
+				puts e
+				puts e.backtrace
+				@running = false
+			end
+		end
+		
 		@start_time = Time.now
 		
 		while @running do
@@ -56,6 +61,7 @@ class << Game
 			advance_frame
 		end
 		
+		# Cleanup
 		@display.close
 		@display = nil
 	end

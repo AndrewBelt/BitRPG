@@ -2,11 +2,6 @@
 TODO
 ===
 
-Map
-- Make Map global
-  - Map.load
-  - Map.clear
-
 Game
 - Add global controls methods
 
@@ -18,10 +13,6 @@ Standardize the Rails-like automatic searching of
 - scripts
 - Maps
 - etc
-
-Vectors
-- Change everything from [x, y] pairs to Vectors
-- Make sure their use is mostly hidden from the scripting context
 
 GUI
 - Font

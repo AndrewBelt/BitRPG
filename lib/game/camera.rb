@@ -23,6 +23,6 @@ class FollowCamera < Camera
 	end
 	
 	def center
-		@tile.coords
+		@tile.position
 	end
 end
