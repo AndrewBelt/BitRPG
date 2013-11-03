@@ -21,8 +21,8 @@ class Entity < Tile
 		end
 	end
 	
-	def draw(position)
-		super(position - @type.origin)
+	def draw(offset)
+		super(offset - @type.origin)
 	end
 	
 	# Resets the animation

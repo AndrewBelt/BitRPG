@@ -13,7 +13,7 @@ class Tile
 		@position = Vector.elements([x, y])
 	end
 	
-	def draw(position)
-		@sprite.draw(position)
+	def draw(offset)
+		@sprite.draw(offset)
 	end
 end
