@@ -2,7 +2,6 @@
 
 
 static VALUE bitmap_c;
-static ID ref_id;
 
 
 ALLEGRO_COLOR
@@ -26,9 +25,8 @@ bitmap_free(void *p)
 VALUE
 bitmap_new(VALUE cls, VALUE size)
 {
-	VALUE ref_id = rb_intern("[]");
-	int width = NUM2INT(rb_funcall(size, ref_id, 1, INT2FIX(0)));
-	int height = NUM2INT(rb_funcall(size, ref_id, 1, INT2FIX(1)));
+	int width = NUM2INT(rb_funcall(size, rb_intern("x"), 0));
+	int height = NUM2INT(rb_funcall(size, rb_intern("y"), 0));
 	
 	ALLEGRO_BITMAP *bitmap = al_create_bitmap(width, height);
 	
@@ -131,7 +129,4 @@ Init_graphics()
 	rb_define_method(bitmap_c, "clear", bitmap_clear, -1);
 	rb_define_method(bitmap_c, "size", bitmap_size, 0);
 	rb_define_method(bitmap_c, "blit", bitmap_blit, -1);
-	
-	// Globals
-	ref_id = rb_intern("[]");
 }

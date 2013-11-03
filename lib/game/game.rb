@@ -8,7 +8,7 @@ class << Game
 	attr_accessor :framerate
 	attr_reader :last_framerate
 	attr_accessor :root_element
-	attr_reader :screen_size
+	attr_reader :size
 	
 	# Must be called before any methods of Game are used
 	def from_yaml(filename)
@@ -21,20 +21,20 @@ class << Game
 		# Display
 		
 		display_conf = data.fetch('display')
-		screen_size_ary = [display_conf.fetch('width'),
+		size_ary = [display_conf.fetch('width'),
 			display_conf.fetch('height')]
-		@screen_size = Vector.elements(screen_size_ary)
+		@size = Vector.elements(size_ary)
 		@zoom = display_conf.fetch('zoom', 1)
 		@framerate = display_conf.fetch('framerate', 0)
 		
-		display_size = screen_size * @zoom
+		display_size = @size * @zoom
 		@display = Display.new(display_size)
 		
 		@queue = EventQueue.new
 		@queue.register_display(@display)
 		@queue.register_keyboard
 		
-		screen_bitmap = Bitmap.new(screen_size)
+		screen_bitmap = Bitmap.new(@size)
 		@screen = Sprite.new(screen_bitmap)
 	end
 	

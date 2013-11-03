@@ -5,7 +5,7 @@ class Camera
 end
 
 
-class StaticCamera < Camera
+class FixedCamera < Camera
 	attr_accessor :center
 	
 	def initialize(center=Vector[0, 0])
@@ -14,15 +14,15 @@ class StaticCamera < Camera
 end
 
 
-# Follows a tile as it moves
+# Follows an entity as it moves
 class FollowCamera < Camera
-	attr_accessor :tile
+	attr_accessor :entity
 	
-	def initialize(tile)
-		@tile = tile
+	def initialize(entity)
+		@entity = entity
 	end
 	
 	def center
-		@tile.position
+		@entity.position
 	end
 end

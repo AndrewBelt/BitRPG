@@ -4,22 +4,16 @@ TODO
 
 Game
 - Add global controls methods
+- Queue up scripts to be run
+  - Immediately?
+  - When the current script exits?
 
 Character
 - behaviors
 - map should pass events to its PlayerBehavior
 
-Standardize the Rails-like automatic searching of
-- scripts
-- Maps
-- etc
-
 GUI
-- Font
-- Element
-- Text < Element
-- Panel < Element
-- Container < Element
+- Dialogue panel
 
 Audio
 - Music

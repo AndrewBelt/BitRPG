@@ -10,9 +10,8 @@ void display_free(void *p)
 
 VALUE display_new(VALUE cls, VALUE size)
 {
-	VALUE ref_id = rb_intern("[]");
-	int width = NUM2INT(rb_funcall(size, ref_id, 1, INT2FIX(0)));
-	int height = NUM2INT(rb_funcall(size, ref_id, 1, INT2FIX(1)));
+	int width = NUM2INT(rb_funcall(size, rb_intern("x"), 0));
+	int height = NUM2INT(rb_funcall(size, rb_intern("y"), 0));
 	
 	// Display configuration
 	al_reset_new_display_options();

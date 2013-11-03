@@ -1,6 +1,7 @@
 #include "bitrpg.h"
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
+#include <allegro5/allegro_primitives.h>
 
 
 void
@@ -38,13 +39,37 @@ font_blit(VALUE self, VALUE color, VALUE x, VALUE y, VALUE text)
 	return Qnil;
 }
 
+VALUE
+rectangle_draw(VALUE self, VALUE offset)
+{
+	VALUE position = rb_iv_get(self, "@position");
+	int x1 = NUM2INT(rb_funcall(position, rb_intern("x"), 0));
+	int y1 = NUM2INT(rb_funcall(position, rb_intern("y"), 0));
+	x1 += NUM2DBL(rb_funcall(offset, rb_intern("x"), 0));
+	y1 += NUM2DBL(rb_funcall(offset, rb_intern("y"), 0));
+	
+	VALUE size = rb_iv_get(self, "@size");
+	int x2 = x1 + NUM2INT(rb_funcall(size, rb_intern("x"), 0));
+	int y2 = y1 + NUM2INT(rb_funcall(size, rb_intern("y"), 0));
+	
+	VALUE color = rb_iv_get(self, "@color");
+	ALLEGRO_COLOR alleg_color = value_to_color(color);
+	
+	al_draw_filled_rectangle(x1, y1, x2, y2, alleg_color);
+	return Qnil;
+}
+
 void
 Init_gui()
 {
 	rb_require("./lib/core/gui");
 	
+	// class Font
 	VALUE font_c = rb_const_get(rb_cObject, rb_intern("Font"));
 	rb_define_singleton_method(font_c, "load", font_load, 2);
-	
 	rb_define_method(font_c, "blit", font_blit, 4);
+	
+	// class Rectangle
+	VALUE rectangle_c = rb_const_get(rb_cObject, rb_intern("Rectangle"));
+	rb_define_method(rectangle_c, "draw", rectangle_draw, 1);
 }

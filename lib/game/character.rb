@@ -82,7 +82,7 @@ class Character < Entity
 	
 	def update_walk_animation
 		animation_name = @face_direction.to_s
-		self.animation = animation_name
+		self.prepare_animation(animation_name)
 		
 		if @curr_direction
 			play

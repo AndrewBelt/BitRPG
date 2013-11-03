@@ -9,21 +9,29 @@ class Entity < Tile
 		
 		@type = self.class::Type.all.fetch(name)
 		
-		self.animation = 'default'
+		self.prepare_animation('default')
 		stop
 	end
 	
 	def advance_frame
 		if @animating and @delay_cycle.next == 0
-			@sprite = @animation_cycle.next
+			@sprite = @current_animation[@animation_frame]
+			@animation_frame += 1
+			@animation_frame %= @current_animation.length
 		end
 	end
 	
+	def draw(position)
+		super(position - @type.origin)
+	end
+	
 	# Resets the animation
-	def animation=(name)
+	def prepare_animation(name)
 		@delay_cycle = @type.delay.times.cycle
-		@animation_cycle = @type.animations.fetch(name).cycle
-		@sprite = @animation_cycle.next
+		@current_animation = @type.animations.fetch(name)
+		
+		@animation_frame = 0
+		@sprite = @current_animation[@animation_frame]
 	end
 	
 	def play
@@ -54,14 +62,12 @@ class Entity::Type
 	attr_reader :animations # {name => [sprite]}
 	attr_reader :delay # Integer
 	
-	# Map coordinates of the center of the entity
-	# The default is half the size, i.e. the center
-	# of the bounding box.
-	# For use with the FollowCamera, for example.
-	attr_reader :origin # [Number, Number]
+	# Pixel coordinates of the top-left corner of the sprite
+	attr_reader :origin # Vector
 	
 	def initialize(data, tileset)
 		size = Vector.elements(data.fetch('size', [1, 1]))
+		tile_size = tileset.tile_size
 		
 		@animations = {}
 		data['animations'].each do |animation_name, frames|
@@ -72,11 +78,7 @@ class Entity::Type
 		end
 		
 		@delay = data.fetch('delay', 1)
-		@origin = data['origin']
-		
-		unless @origin
-			@origin = [size.x.to_f / 2, size.y.to_f / 2]
-		end
+		@origin = Vector.elements(data.fetch('origin', [0, 0]))
 	end
 end
 

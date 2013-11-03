@@ -56,6 +56,8 @@ class Map < Container
 			tilesets[first_gid] = Tileset.all[tileset_name]
 		end
 		
+		# Reversed so we can find the greatest key less than or
+		# equal to a given gid
 		first_gids = tilesets.keys.reverse
 		
 		# Load layers
@@ -99,17 +101,13 @@ class Map < Container
 		# TODO
 		# Sort by z-order
 		
-		tiles = []
-		tiles += @map_tiles
-		tiles += @entities
-		tiles
+		@map_tiles + @entities
 	end
 	
 	def draw(offset)
-		screen_size = Game.screen_size
-		center = @camera.center
-		camera_offset = @tile_size.mul(center + Vector[0.5, 0.5]) -
-			screen_size / 2
+		screen_size = Game.size
+		center = @camera.center + Vector[0.5, 0.5]
+		camera_offset = @tile_size.mul(center) - screen_size / 2
 		
 		# TODO
 		# Combine static tile rendering with entities
@@ -119,7 +117,7 @@ class Map < Container
 			# TODO
 			# Draw only if the bitmap is in the boundary
 			
-			tile.sprite.draw(position)
+			tile.draw(position)
 		end
 		
 		# Draw the elements of this container last
@@ -131,6 +129,7 @@ class Map < Container
 		handled = super
 		return handled if handled
 		
+		# TEMP
 		if event.type == :key_down
 			if [:up, :down, :left, :right].include?(event.key)
 				@player.walk(event.key, false) if @player

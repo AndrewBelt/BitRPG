@@ -1,6 +1,7 @@
 CFLAGS = -Wall -g -O2 -std=c99 \
 	-I/usr/include/ruby-2.0.0 \
-	-I/usr/include/ruby-2.0.0/x86_64-linux/
+	-I/usr/include/ruby-2.0.0/x86_64-linux
+
 
 LDFLAGS = -L/usr/local/lib \
 	-lallegro \
@@ -9,6 +10,7 @@ LDFLAGS = -L/usr/local/lib \
 	-lallegro_color \
 	-lallegro_font \
 	-lallegro_ttf \
+	-lallegro_primitives \
 	-lruby
 
 OBJS = \
@@ -19,10 +21,11 @@ OBJS = \
 	src/events.o \
 	src/gui.o
 
+
 all: bin/bitrpg
 
 bin/bitrpg: $(OBJS)
-	$(LINK.c) -o $@ $^
+	$(LINK.c) -o $@ $^ $(STATIC_LIBS)
 
 clean:
 	rm -f bin/bitrpg

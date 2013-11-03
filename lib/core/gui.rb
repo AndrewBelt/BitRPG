@@ -55,6 +55,8 @@ class Font
 			self.load(*args)
 		end
 		
+		# Loads a TTF font with the given font size
+		# To change the font size, you must load multiple fonts
 		# def load(filename, size); end
 	end
 	
@@ -74,6 +76,15 @@ class Text < Element
 	end
 	
 	def draw(offset)
-		@font.blit(@color, @position.x, @position.y, @text)
+		position = @position + offset
+		@font.blit(@color, position.x, position.y, @text)
 	end
+end
+
+
+class Rectangle < Element
+	attr_accessor :size
+	attr_accessor :color
+	
+	# def draw(offset); end
 end
