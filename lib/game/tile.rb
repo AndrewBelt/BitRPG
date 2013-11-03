@@ -1,8 +1,5 @@
 # Combines a sprite with a coordinate position on the map
 class Tile
-	# Only drawable on Maps
-	include Drawable
-	
 	attr_accessor :sprite
 	attr_accessor :position
 	

@@ -1,3 +1,4 @@
+require './lib/core/gui'
 require './lib/game/state'
 require './lib/game/tileset'
 require './lib/game/entity'
@@ -5,12 +6,7 @@ require './lib/game/behavior'
 require './lib/game/camera'
 require 'yaml'
 
-module Map
-	include DrawTarget
-	include Drawable
-end
-
-class << Map
+class Map < Container
 	# The number of map tiles composing the map
 	attr_reader :map_size # Vector
 	
@@ -24,6 +20,11 @@ class << Map
 	attr_accessor :camera # Camera
 	
 	attr_accessor :background_color # Color
+	
+	def initialize
+		super
+		clear
+	end
 	
 	def clear
 		@map_tiles = []
@@ -42,7 +43,7 @@ class << Map
 	end
 	
 	def from_data(data)
-		clear()
+		clear
 		
 		@map_size = Vector.elements(data.fetch('map_size'))
 		@tile_size = Vector.elements(data.fetch('tile_size'))
@@ -104,34 +105,46 @@ class << Map
 		tiles
 	end
 	
-	def draw_to(target)
+	def draw(offset)
+		screen_size = Game.screen_size
 		center = @camera.center
-		offset = @tile_size.mul(center + Vector[0.5, 0.5]) - target.size / 2
-		
-		target.activate
-		target.clear(@background_color)
+		camera_offset = @tile_size.mul(center + Vector[0.5, 0.5]) -
+			screen_size / 2
 		
 		# TODO
 		# Combine static tile rendering with entities
 		all_tiles.each do |tile|
-			position = @tile_size.mul(tile.position) - offset
+			position = @tile_size.mul(tile.position) - camera_offset
 			
 			# TODO
 			# Draw only if the bitmap is in the boundary
 			
-			tile.sprite.blit(position)
+			tile.sprite.draw(position)
 		end
+		
+		# Draw the elements of this container last
+		# e.g. HUD, pause menu, etc.
+		super
 	end
 	
-	def check_event(event)
+	def handle_event(event)
+		handled = super
+		return handled if handled
+		
 		if event.type == :key_down
 			if [:up, :down, :left, :right].include?(event.key)
 				@player.walk(event.key, false) if @player
+				return true
 			end
 		end
+		
+		false
 	end
 	
 	def advance_frame
+		# Advance the frames of the elements
+		super
+		
 		@entities.each do |entity|
 			entity.advance_frame
 		end

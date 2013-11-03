@@ -2,26 +2,7 @@ require 'matrix'
 require './lib/core/util'
 
 
-# Thanks to SFML for the idea of reversing the direction
-# of the target and the drawable.
-module DrawTarget
-	def draw(drawable, *args)
-		drawable.draw_to(self, *args)
-	end
-	
-	def activate; end
-	def size; end
-end
-
-
-module Drawable
-	def draw_to(target, *args); end
-end
-
-
 class Bitmap
-	include DrawTarget
-	
 	# def self.new(size); end
 	
 	# Loads from a file while bypassing the cache

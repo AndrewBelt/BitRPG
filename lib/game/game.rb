@@ -7,8 +7,8 @@ end
 class << Game
 	attr_accessor :framerate
 	attr_reader :last_framerate
-	attr_accessor :state
-	alias_method :show, :state=
+	attr_accessor :root_element
+	attr_reader :screen_size
 	
 	# Must be called before any methods of Game are used
 	def from_yaml(filename)
@@ -23,7 +23,7 @@ class << Game
 		display_conf = data.fetch('display')
 		screen_size_ary = [display_conf.fetch('width'),
 			display_conf.fetch('height')]
-		screen_size = Vector.elements(screen_size_ary)
+		@screen_size = Vector.elements(screen_size_ary)
 		@zoom = display_conf.fetch('zoom', 1)
 		@framerate = display_conf.fetch('framerate', 0)
 		
@@ -57,7 +57,7 @@ class << Game
 		while @running do
 			render
 			limit_framerate
-			check_events
+			handle_events
 			advance_frame
 		end
 		
@@ -77,11 +77,13 @@ class << Game
 	def render
 		@display.clear
 		
-		if @state
+		if @root_element
+			@screen.bitmap.activate
 			@screen.bitmap.clear
-			@screen.bitmap.draw(@state)
+			@root_element.draw(Vector[0, 0])
+			
 			@display.activate
-			@screen.blit(Vector[0, 0], @zoom)
+			@screen.draw(Vector[0, 0], @zoom)
 		end
 		
 		@display.flip
@@ -101,14 +103,24 @@ class << Game
 		@start_time = end_time
 	end
 	
-	def check_events
+	def handle_events
 		@queue.each do |event|
-			stop if event.type == :close
-			@state.check_event(event) if @state
+			if event.type == :close
+				stop
+				next
+			end
+			
+			if @root_element
+				@root_element.handle_event(event)
+			end
 		end
 	end
 	
 	def advance_frame
-		@state.advance_frame if @state
+		@root_element.advance_frame if @root_element
+	end
+	
+	def show(element)
+		@root_element = element
 	end
 end

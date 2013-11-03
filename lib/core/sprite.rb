@@ -14,7 +14,7 @@ class Sprite
 		@clip_size = @bitmap.size
 	end
 	
-	def blit(position, zoom=1)
+	def draw(position, zoom=1)
 		@bitmap.blit(clip_position.x, clip_position.y,
 			clip_size.x, clip_size.y, position.x, position.y, zoom)
 	end

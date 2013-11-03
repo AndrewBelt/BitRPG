@@ -1,8 +1,6 @@
 require './lib/core/graphics'
 
 class Display
-	include DrawTarget
-	
 	# def self.new(size); end
 	
 	# def close; end
