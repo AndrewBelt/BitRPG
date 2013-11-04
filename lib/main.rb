@@ -11,6 +11,7 @@ logo = %q{ ___ _ _   ___ ___  ___
 |___/_|\__|_|_\_|  \___|
 
 }
+puts logo
 
 # Initialize modules and classes
 Game.from_yaml('./config.yml')
@@ -22,7 +23,6 @@ MAP = Map.new
 # The REPL thread
 require './lib/core/irb'
 Thread.new do
-	puts logo
 	IRB.start_mini
 	Game.quit
 end

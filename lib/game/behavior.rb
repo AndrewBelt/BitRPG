@@ -24,8 +24,7 @@ class PlayerBehavior < Behavior
 			end
 		end
 		
-		@last_direction = @next_direction
-		@next_direction = nil
+		@last_direction, @next_direction = @next_direction, nil
 		@last_direction
 	end
 	

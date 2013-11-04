@@ -26,15 +26,23 @@ class Character < Entity
 		
 		# Request a new current direction from the behavior
 		if !@curr_direction and @next_direction
+			@face_direction = @next_direction
+			
 			# TODO
 			# Check collision
+			new_position = @position + DIRECTIONS[@next_direction]
+			collides = new_position.x < 0 || new_position.y < 0
 			
-			@curr_direction, @next_direction = @next_direction, nil
-			@walk_frame = 1
+			if collides
+				@next_direction = nil
+			else
+				@curr_direction, @next_direction = @next_direction, nil
+				@walk_frame = 1
+			end
 		end
 		
 		if @curr_direction
-			velocity = DIRECTIONS[@curr_direction]
+			delta_position = DIRECTIONS[@curr_direction]
 			
 			if @walk_frame >= @type.slowness
 				# Done walking
@@ -42,14 +50,14 @@ class Character < Entity
 				@curr_direction = nil
 				@walk_frame = 0
 				
-				@position += velocity
+				@position += delta_position
 				@walk_offset = Vector[0, 0]
 				
 				@walk_mutex.synchronize do
 					@walk_resource.broadcast
 				end
 			else
-				@walk_offset = velocity * @walk_frame.to_f / @type.slowness
+				@walk_offset = delta_position * @walk_frame.to_f / @type.slowness
 				@walk_frame += 1
 			end
 		end
@@ -79,10 +87,11 @@ class Character < Entity
 				@walk_resource.wait(@walk_mutex)
 			end
 		end
+		
+		nil
 	end
 	
 	def update_walk_animation
-		@face_direction = @curr_direction if @curr_direction
 		animation_name = @face_direction.to_s
 		self.animation = animation_name
 		
