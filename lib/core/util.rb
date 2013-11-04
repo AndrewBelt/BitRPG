@@ -26,4 +26,8 @@ class Vector
 	def div(other)
 		self.map2(other, &:/)
 	end
+	
+	def round
+		map(&:round)
+	end
 end

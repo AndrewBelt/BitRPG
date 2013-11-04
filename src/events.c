@@ -3,17 +3,20 @@
 
 
 static rb_encoding *utf8_encoding;
+static ALLEGRO_KEYBOARD_STATE keyboard_state;
 
 VALUE event_create(ALLEGRO_EVENT *event);
 
 
-void event_queue_free(void *p)
+void
+event_queue_free(void *p)
 {
 	if (p)
 		al_destroy_event_queue(p);
 }
 
-VALUE event_queue_new(VALUE cls)
+VALUE
+event_queue_new(VALUE cls)
 {
 	ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
 	
@@ -21,7 +24,8 @@ VALUE event_queue_new(VALUE cls)
 	return obj;
 }
 
-VALUE event_queue_each(VALUE self)
+VALUE
+event_queue_each(VALUE self)
 {
 	ALLEGRO_EVENT_QUEUE *queue = RDATA(self)->data;
 	ALLEGRO_EVENT event;
@@ -35,7 +39,8 @@ VALUE event_queue_each(VALUE self)
 	return Qnil;
 }
 
-VALUE event_queue_register_display(VALUE self, VALUE display)
+VALUE
+event_queue_register_display(VALUE self, VALUE display)
 {
 	ALLEGRO_EVENT_QUEUE *queue = RDATA(self)->data;
 	ALLEGRO_DISPLAY *d = RDATA(display)->data;
@@ -43,14 +48,16 @@ VALUE event_queue_register_display(VALUE self, VALUE display)
 	return Qnil;
 }
 
-VALUE event_queue_register_keyboard(VALUE self)
+VALUE
+event_queue_register_keyboard(VALUE self)
 {
 	ALLEGRO_EVENT_QUEUE *queue = RDATA(self)->data;
 	al_register_event_source(queue, al_get_keyboard_event_source());
 	return Qnil;
 }
 
-VALUE event_create(ALLEGRO_EVENT *event)
+VALUE
+event_create(ALLEGRO_EVENT *event)
 {
 	VALUE event_c = rb_const_get(rb_cObject, rb_intern("Event"));
 	VALUE obj = rb_obj_alloc(event_c);
@@ -70,7 +77,8 @@ VALUE event_create(ALLEGRO_EVENT *event)
 	case ALLEGRO_EVENT_KEY_DOWN:
 	case ALLEGRO_EVENT_KEY_UP:
 		{
-			VALUE key_codes = rb_iv_get(event_c, "@key_codes");
+			VALUE keyboard_m = rb_const_get(rb_cObject, rb_intern("Keyboard"));
+			VALUE key_codes = rb_iv_get(keyboard_m, "@key_codes");
 			VALUE key_code = INT2NUM(event->keyboard.keycode);
 			VALUE key_code_sym = rb_hash_aref(key_codes, key_code);
 			rb_iv_set(obj, "@key", key_code_sym);
@@ -81,7 +89,30 @@ VALUE event_create(ALLEGRO_EVENT *event)
 	return obj;
 }
 
-void Init_events()
+static int
+keyboard_held_each(VALUE key, VALUE val, VALUE held)
+{
+	if (al_key_down(&keyboard_state, FIX2INT(key)))
+		rb_ary_push(held, val);
+	
+	return ST_CONTINUE;
+}
+
+VALUE
+keyboard_held(VALUE cls)
+{
+	// Not quite thread safe
+	al_get_keyboard_state(&keyboard_state);
+	
+	VALUE key_codes = rb_iv_get(cls, "@key_codes");
+	VALUE held = rb_ary_new();
+	
+	rb_hash_foreach(key_codes, keyboard_held_each, held);
+	return held;
+}
+
+void
+Init_events()
 {
 	rb_require("./lib/core/events");
 	
@@ -89,16 +120,16 @@ void Init_events()
 	
 	VALUE event_queue_c = rb_const_get(rb_cObject, rb_intern("EventQueue"));
 	rb_define_singleton_method(event_queue_c, "new", event_queue_new, 0);
-	
 	rb_define_method(event_queue_c, "each", event_queue_each, 0);
 	rb_define_method(event_queue_c, "register_display", event_queue_register_display, 1);
 	rb_define_method(event_queue_c, "register_keyboard", event_queue_register_keyboard, 0);
 	
+	
 	// class Event
 	
 	VALUE event_c = rb_const_get(rb_cObject, rb_intern("Event"));
-	
 	VALUE event_types = rb_hash_new();
+	
 	#define EVENT_TYPE(type, symbol) \
 		rb_hash_aset(event_types, INT2NUM(type), ID2SYM(rb_intern(symbol)))
 	
@@ -131,7 +162,12 @@ void Init_events()
 	rb_iv_set(event_c, "@event_types", event_types);
 	
 	
+	// module Keyboard
+	
+	VALUE keyboard_m = rb_const_get(rb_cObject, rb_intern("Keyboard"));
+	rb_define_singleton_method(keyboard_m, "held", keyboard_held, 0);
 	VALUE key_codes = rb_hash_new();
+	
 	#define KEY_CODE(key, symbol) \
 		rb_hash_aset(key_codes, INT2NUM(key), ID2SYM(rb_intern(symbol)))
 	
@@ -215,7 +251,7 @@ void Init_events()
 	// KEY_CODE(ALLEGRO_KEY_SEMICOLON2, "");
 	// KEY_CODE(ALLEGRO_KEY_COMMAND, "");
 	
-	rb_iv_set(event_c, "@key_codes", key_codes);
+	rb_iv_set(keyboard_m, "@key_codes", key_codes);
 	
 	
 	// Globals

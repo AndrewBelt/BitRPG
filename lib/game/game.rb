@@ -55,10 +55,10 @@ class << Game
 		@start_time = Time.now
 		
 		while @running do
-			render
-			limit_framerate
 			handle_events
 			advance_frame
+			render
+			limit_framerate
 		end
 		
 		# Cleanup

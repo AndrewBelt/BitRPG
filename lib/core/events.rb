@@ -7,6 +7,7 @@ class EventQueue
 	# def register_keyboard; end
 end
 
+
 class Event
 	attr_reader :type
 	attr_reader :key
@@ -15,6 +16,14 @@ class Event
 	
 	class << self
 		attr_reader :event_types
+	end
+end
+
+
+module Keyboard
+	class << self
 		attr_reader :key_codes
+		
+		# def held; end
 	end
 end

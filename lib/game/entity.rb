@@ -2,44 +2,57 @@ require './lib/game/tile'
 
 # A Tile with animation and actions
 class Entity < Tile
-	attr_reader :type
+	attr_reader :type # ::Type
+	attr_reader :animation # String
 	
 	def initialize(name)
 		super()
 		
 		@type = self.class::Type.all.fetch(name)
 		
-		self.prepare_animation('default')
+		self.animation = 'default'
 		stop
 	end
 	
 	def advance_frame
+		@sprite = @frames[@animation_frame]
+		
 		if @animating and @delay_cycle.next == 0
-			@sprite = @current_animation[@animation_frame]
 			@animation_frame += 1
-			@animation_frame %= @current_animation.length
+			@animation_frame %= @frames.length
 		end
 	end
 	
-	def draw(offset)
-		super(offset - @type.origin)
-	end
-	
-	# Resets the animation
-	def prepare_animation(name)
-		@delay_cycle = @type.delay.times.cycle
-		@current_animation = @type.animations.fetch(name)
+	def animation=(name)
+		if @animation != name
+			# Reset the animation
+			@frames = @type.animations.fetch(name)
+			rewind
+		end
 		
-		@animation_frame = 0
-		@sprite = @current_animation[@animation_frame]
+		@animation = name
 	end
 	
 	def play
 		@animating = true
 	end
 	
-	def stop
+	def pause
 		@animating = false
+	end
+	
+	def rewind
+		@animation_frame = 0
+		@delay_cycle = @type.delay.times.cycle
+	end
+	
+	def stop
+		pause
+		rewind
+	end
+	
+	def draw(offset)
+		super(offset - @type.origin)
 	end
 	
 	def action

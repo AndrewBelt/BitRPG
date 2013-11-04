@@ -2,7 +2,6 @@ require './lib/core/gui'
 require './lib/game/state'
 require './lib/game/tileset'
 require './lib/game/entity'
-require './lib/game/behavior'
 require './lib/game/camera'
 require 'yaml'
 
@@ -16,7 +15,7 @@ class Map < Container
 	attr_reader :map_tiles # [Tile]
 	attr_reader :entities # [Tile]
 	
-	attr_accessor :player # Character
+	attr_accessor :player_behavior # PlayerBehavior
 	attr_accessor :camera # Camera
 	
 	attr_accessor :background_color # Color
@@ -113,6 +112,7 @@ class Map < Container
 		# Combine static tile rendering with entities
 		all_tiles.each do |tile|
 			position = @tile_size.mul(tile.position) - camera_offset
+			position = position.round
 			
 			# TODO
 			# Draw only if the bitmap is in the boundary
@@ -126,15 +126,10 @@ class Map < Container
 	end
 	
 	def handle_event(event)
-		handled = super
-		return handled if handled
+		return true if super
 		
-		# TEMP
-		if event.type == :key_down
-			if [:up, :down, :left, :right].include?(event.key)
-				@player.walk(event.key, false) if @player
-				return true
-			end
+		if @player_behavior
+			return true if @player_behavior.handle_event(event)
 		end
 		
 		false
