@@ -28,6 +28,7 @@ class Map < Container
 	def clear
 		@map_tiles = []
 		@entities = []
+		@collisions = []
 		@background_color = Color.new
 	end
 	
@@ -50,8 +51,17 @@ class Map < Container
 		# Load tilesets
 		
 		tilesets = {} # {first_gid => Tileset}
+		collision_gid = nil
 		
 		data['tilesets'].each do |first_gid, tileset_name|
+			# The first tile of the tileset named 'collision'
+			# is the magic collision tile.
+			# It  can be placed on any layer, and it won't be rendered.
+			if tileset_name.downcase == 'collision'
+				collision_gid = first_gid
+				next
+			end
+			
 			tilesets[first_gid] = Tileset.all[tileset_name]
 		end
 		
@@ -62,26 +72,28 @@ class Map < Container
 		# Load layers
 		
 		data['layers'].each do |layer, gids|
-			# Collision layer
-			if layer == 'collision'
-				@collisions = gids.collect {|gid| gid != 0}
-				next
-			end
-			
 			# Tile layer
 			gids.each_index do |index|
 				gid = gids[index]
+				
 				# gid of 0 means a blank space
 				next if gid == 0
 				
+				if gid == collision_gid
+					@collisions[index] = true
+					next
+				end
+				
+				# Get the sprite corresponding to the gid
 				fid = first_gids.find {|fid| fid <= gid}
 				id = gid - fid
 				tileset = tilesets[fid]
-				tile = Tile.new(tileset[id])
+				sprite = tileset[id]
 				
+				# Create and add the tile
+				tile = Tile.new(sprite)
 				position_y, position_x = index.divmod(@map_size.x)
 				tile.position = Vector[position_x, position_y]
-				
 				@map_tiles << tile
 			end
 		end
@@ -92,6 +104,22 @@ class Map < Container
 	
 	def add(entity, layer=1)
 		@entities << entity
+	end
+	
+	def collides?(position)
+		return true unless (0...@map_size.x) === position.x and
+			(0...@map_size.y) === position.y
+		
+		index = position.x + @map_size.x * position.y
+		return true if @collisions[index]
+		
+		@entities.each do |entity|
+			if entity.hit?(position)
+				return true if entity.collides?
+			end
+		end
+		
+		false
 	end
 	
 	# Returns a sorted list of all Tiles, Entities, Characters, etc
@@ -140,7 +168,7 @@ class Map < Container
 		super
 		
 		@entities.each do |entity|
-			entity.advance_frame
+			entity.advance_frame(self)
 		end
 	end
 end

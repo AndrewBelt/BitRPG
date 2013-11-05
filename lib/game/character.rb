@@ -10,7 +10,6 @@ class Character < Entity
 	def initialize(*args)
 		super
 		
-		@walk_offset = Vector[0, 0]
 		@face_direction = :down
 		@walk_mutex = Mutex.new
 		@walk_resource = ConditionVariable.new
@@ -18,7 +17,9 @@ class Character < Entity
 	
 	# Walking
 	
-	def advance_frame
+	def advance_frame(map)
+		walk_finished = false
+		
 		# Override the next direction if the behavior has one
 		if !@curr_direction and @behavior
 			@next_direction ||= @behavior.next_direction
@@ -28,13 +29,12 @@ class Character < Entity
 		if !@curr_direction and @next_direction
 			@face_direction = @next_direction
 			
-			# TODO
 			# Check collision
 			new_position = @position + DIRECTIONS[@next_direction]
-			collides = new_position.x < 0 || new_position.y < 0
 			
-			if collides
+			if map.collides?(new_position)
 				@next_direction = nil
+				finish_walk
 			else
 				@curr_direction, @next_direction = @next_direction, nil
 				@walk_frame = 1
@@ -47,17 +47,15 @@ class Character < Entity
 			if @walk_frame >= @type.slowness
 				# Done walking
 				
+				finish_walk
 				@curr_direction = nil
 				@walk_frame = 0
 				
 				@position += delta_position
-				@walk_offset = Vector[0, 0]
+				@offset = Vector[0, 0]
 				
-				@walk_mutex.synchronize do
-					@walk_resource.broadcast
-				end
 			else
-				@walk_offset = delta_position * @walk_frame.to_f / @type.slowness
+				@offset = delta_position * @walk_frame.to_f / @type.slowness
 				@walk_frame += 1
 			end
 		end
@@ -68,15 +66,6 @@ class Character < Entity
 		update_walk_animation
 		
 		super
-	end
-	
-	def position
-		super + @walk_offset
-	end
-	
-	def position=(pos)
-		super
-		@walk_offset = Vector[0, 0]
 	end
 	
 	def walk(direction, blocking=true)
@@ -91,6 +80,14 @@ class Character < Entity
 		nil
 	end
 	
+private
+	
+	def finish_walk
+		@walk_mutex.synchronize do
+			@walk_resource.broadcast
+		end
+	end
+	
 	def update_walk_animation
 		animation_name = @face_direction.to_s
 		self.animation = animation_name
@@ -101,8 +98,6 @@ class Character < Entity
 			stop
 		end
 	end
-	
-	private :update_walk_animation
 end
 
 

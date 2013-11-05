@@ -68,10 +68,8 @@ end
 
 # Dump the data
 
-Psych.dump(output_data, output_file)
-
-# Psych.dump(output_data, output_file, {
-# 	:line_width => -1
-# })
+Psych.dump(output_data, output_file, {
+	:line_width => -1
+})
 
 puts "Successfully generated '#{output_path}'"

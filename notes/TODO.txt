@@ -8,6 +8,13 @@ Game
   - Immediately?
   - When the current script exits?
 
+Map
+- z-ordering of tiles and entities
+- collisions
+  - map boundary
+  - 'collision' layer
+  - colliding entities
+
 Character
 - behaviors
 - map should pass events to its PlayerBehavior

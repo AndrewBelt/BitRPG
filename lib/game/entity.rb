@@ -4,24 +4,49 @@ require './lib/game/tile'
 class Entity < Tile
 	attr_reader :type # ::Type
 	attr_reader :animation # String
+	attr_accessor :offset # Vector
 	
 	def initialize(name)
 		super()
 		
 		@type = self.class::Type.all.fetch(name)
+		@offset = Vector[0, 0]
 		
 		self.animation = 'default'
 		stop
 	end
 	
-	def advance_frame
-		@sprite = @frames[@animation_frame]
-		
-		if @animating and @delay_cycle.next == 0
-			@animation_frame += 1
-			@animation_frame %= @frames.length
+	def action
+		if block_given?
+			@action = Proc.new
+		else
+			@action.call if @action
 		end
 	end
+	
+	# Position methods
+	
+	def position
+		super + @offset
+	end
+	
+	def position=(pos)
+		super
+		@offset = Vector[0, 0]
+	end
+	
+	def hit?(position)
+		hits = (@position == position)
+		# TODO
+		# Support hit-testing entities larger than [1, 1]
+		hits
+	end
+	
+	def collides?
+		@type.collides
+	end
+	
+	# Animations
 	
 	def animation=(name)
 		if @animation != name
@@ -51,16 +76,19 @@ class Entity < Tile
 		rewind
 	end
 	
-	def draw(offset)
-		super(offset - @type.origin)
+	# Game loop methods
+	
+	def advance_frame(map)
+		@sprite = @frames[@animation_frame]
+		
+		if @animating and @delay_cycle.next == 0
+			@animation_frame += 1
+			@animation_frame %= @frames.length
+		end
 	end
 	
-	def action
-		if block_given?
-			@action = Proc.new
-		else
-			@action.call if @action
-		end
+	def draw(offset)
+		super(offset - @type.origin)
 	end
 end
 
@@ -74,6 +102,7 @@ class Entity::Type
 	
 	attr_reader :animations # {name => [sprite]}
 	attr_reader :delay # Integer
+	attr_reader :collides # Boolean
 	
 	# Pixel coordinates of the top-left corner of the sprite
 	attr_reader :origin # Vector
@@ -92,6 +121,7 @@ class Entity::Type
 		
 		@delay = data.fetch('delay', 1)
 		@origin = Vector.elements(data.fetch('origin', [0, 0]))
+		@collides = data.fetch('collides', false)
 	end
 end
 
