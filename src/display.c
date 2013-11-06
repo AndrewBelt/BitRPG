@@ -16,7 +16,7 @@ VALUE display_new(VALUE cls, VALUE size)
 	// Display configuration
 	al_reset_new_display_options();
 	al_set_new_display_flags(ALLEGRO_WINDOWED);
-	al_set_new_display_option(ALLEGRO_VSYNC, 2, 1);
+	al_set_new_display_option(ALLEGRO_VSYNC, 1, ALLEGRO_SUGGEST);
 	
 	ALLEGRO_DISPLAY *display = al_create_display(width, height);
 	

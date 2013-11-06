@@ -64,7 +64,7 @@ class Font
 end
 
 
-class Text < Element
+class Label < Element
 	attr_accessor :text
 	attr_accessor :font
 	attr_accessor :color
