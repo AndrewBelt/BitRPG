@@ -14,7 +14,7 @@ class Element
 		false
 	end
 	
-	def advance_frame
+	def step
 	end
 end
 
@@ -41,9 +41,9 @@ class Container < Element
 		false
 	end
 	
-	def advance_frame
+	def step
 		@elements.each do |element|
-			element.advance_frame
+			element.step
 		end
 	end
 end

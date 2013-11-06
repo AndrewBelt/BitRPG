@@ -163,12 +163,12 @@ class Map < Container
 		false
 	end
 	
-	def advance_frame
-		# Advance the frames of the elements
+	def step
+		# Step the frames of the elements
 		super
 		
 		@entities.each do |entity|
-			entity.advance_frame(self)
+			entity.step(self)
 		end
 	end
 end

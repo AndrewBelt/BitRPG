@@ -56,7 +56,7 @@ class << Game
 		
 		while @running do
 			handle_events
-			advance_frame
+			step
 			render
 			limit_framerate
 		end
@@ -116,8 +116,9 @@ class << Game
 		end
 	end
 	
-	def advance_frame
-		@root_element.advance_frame if @root_element
+	# The "physics" method. Changes the state of the game elements
+	def step
+		@root_element.step if @root_element
 	end
 	
 	def show(element)

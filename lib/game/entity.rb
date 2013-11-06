@@ -60,15 +60,17 @@ class Entity < Tile
 	
 	def play
 		@animating = true
+		@delay_frame = 0
 	end
 	
 	def pause
 		@animating = false
+		@delay_frame = 0
 	end
 	
 	def rewind
 		@animation_frame = 0
-		@delay_cycle = @type.delay.times.cycle
+		@delay_frame = 0
 	end
 	
 	def stop
@@ -78,12 +80,20 @@ class Entity < Tile
 	
 	# Game loop methods
 	
-	def advance_frame(map)
+	def step(map)
+		if @animating
+			if @delay_frame >= @type.delay
+				@animation_frame += 1
+				@animation_frame %= @frames.length
+				
+				@delay_frame = 0
+			end
+		end
+		
 		@sprite = @frames[@animation_frame]
 		
-		if @animating and @delay_cycle.next == 0
-			@animation_frame += 1
-			@animation_frame %= @frames.length
+		if @animating
+			@delay_frame += 1
 		end
 	end
 	

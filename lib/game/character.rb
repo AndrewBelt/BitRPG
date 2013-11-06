@@ -17,15 +17,14 @@ class Character < Entity
 	
 	# Walking
 	
-	def advance_frame(map)
-		walk_finished = false
+	def step(map)
 		
 		# Override the next direction if the behavior has one
-		if !@curr_direction and @behavior
-			@next_direction ||= @behavior.next_direction
+		if @behavior and !@curr_direction
+			@next_direction = @behavior.next_direction
 		end
 		
-		# Request a new current direction from the behavior
+		# Potentially begin walking
 		if !@curr_direction and @next_direction
 			@face_direction = @next_direction
 			
@@ -36,16 +35,39 @@ class Character < Entity
 				@next_direction = nil
 				finish_walk
 			else
-				@curr_direction, @next_direction = @next_direction, nil
-				@walk_frame = 1
+				# Begin walking
+				@curr_direction = @next_direction
+				@next_direction = nil
+				
+				@walk_frame = 0
 			end
 		end
 		
+		# Update the animation
+		if @face_direction != @last_face_direction
+			animation_name = @face_direction.to_s
+			self.animation = animation_name
+		end
+			
+		if @last_direction != @curr_direction
+			if @curr_direction
+				play
+				@animation_frame += 1
+			else
+				stop
+			end
+		end
+		
+		@last_direction = @curr_direction
+		@last_face_direction = @face_direction
+		
+		# Potentially finish walking
 		if @curr_direction
 			delta_position = DIRECTIONS[@curr_direction]
+			@walk_frame += 1
 			
 			if @walk_frame >= @type.slowness
-				# Done walking
+				# Finish walking
 				
 				finish_walk
 				@curr_direction = nil
@@ -53,17 +75,11 @@ class Character < Entity
 				
 				@position += delta_position
 				@offset = Vector[0, 0]
-				
 			else
-				@offset = delta_position * @walk_frame.to_f / @type.slowness
-				@walk_frame += 1
+				walk_prop = @walk_frame.to_f / @type.slowness
+				@offset = delta_position * walk_prop
 			end
 		end
-		
-		# TODO
-		# Should this be called every frame or only when the walk animation
-		# actually needs to be changed?
-		update_walk_animation
 		
 		super
 	end
@@ -87,17 +103,6 @@ private
 			@walk_resource.broadcast
 		end
 	end
-	
-	def update_walk_animation
-		animation_name = @face_direction.to_s
-		self.animation = animation_name
-		
-		if @curr_direction
-			play
-		else
-			stop
-		end
-	end
 end
 
 
@@ -109,6 +114,6 @@ class Character::Type < Entity::Type
 	def initialize(data, tileset)
 		super
 		
-		@slowness = data.fetch('slowness', 1)
+		@slowness = data.fetch('slowness', 1000)
 	end
 end
