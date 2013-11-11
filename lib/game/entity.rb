@@ -1,4 +1,4 @@
-require './lib/game/tile'
+require 'game/tile'
 
 # A Tile with animation and actions
 class Entity < Tile

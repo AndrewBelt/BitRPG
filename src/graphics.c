@@ -117,7 +117,7 @@ bitmap_blit(int argc, VALUE *argv, VALUE self)
 void
 Init_graphics()
 {
-	rb_require("./lib/core/graphics");
+	rb_require("core/graphics");
 	
 	// class Bitmap
 	

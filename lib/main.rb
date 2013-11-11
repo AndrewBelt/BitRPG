@@ -1,9 +1,9 @@
-require './lib/core/util'
-require './lib/game/game'
-require './lib/game/tileset'
-require './lib/game/map'
-require './lib/game/entity'
-require './lib/game/camera'
+require 'core/util'
+require 'game/game'
+require 'game/tileset'
+require 'game/map'
+require 'game/entity'
+require 'game/camera'
 
 logo = %q{ ___ _ _   ___ ___  ___ 
 | _ |_) |_| _ \ _ \/ __|
@@ -17,14 +17,16 @@ puts logo
 Game.from_yaml('./config.yml')
 Tileset.from_yaml('./tilesets.yml')
 
-# Create the global objects
-MAP = Map.new
+# Eager-load the singleton classes
+MAP_SCREEN = MapScreen.instance
+MAP = Map.instance
 
 # The REPL thread
 require './lib/core/irb'
-Thread.new do
+repl_thread = Thread.new do
 	IRB.start_mini
 	Game.quit
 end
 
 Game.run
+repl_thread.kill

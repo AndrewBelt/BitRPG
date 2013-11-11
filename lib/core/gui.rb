@@ -19,22 +19,15 @@ class Element
 end
 
 
-class Container < Element
-	attr_accessor :elements
-	
-	def initialize
-		super
-		@elements = []
-	end
-	
+class Composite < Element
 	def draw(offset)
-		@elements.each do |element|
+		elements.each do |element|
 			element.draw(@position + offset)
 		end
 	end
 	
 	def handle_event(event)
-		@elements.each do |element|
+		elements.each do |element|
 			return true if element.handle_event(event)
 		end
 		
@@ -42,15 +35,32 @@ class Container < Element
 	end
 	
 	def step
-		@elements.each do |element|
+		elements.each do |element|
 			element.step
 		end
+	end
+	
+	# Subclasses will likely override this
+	def elements
+		[]
+	end
+end
+
+
+class Container < Composite
+	attr_accessor :elements
+	
+	def initialize
+		super
+		@elements = []
 	end
 end
 
 
 class Font
 	class << self
+		attr_accessor :default # Font
+		
 		def new(*args)
 			self.load(*args)
 		end

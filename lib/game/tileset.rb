@@ -1,6 +1,6 @@
-require './lib/core/sprite'
-require './lib/game/entity'
-require './lib/game/character'
+require 'core/sprite'
+require 'game/entity'
+require 'game/character'
 require 'yaml'
 
 class Tileset

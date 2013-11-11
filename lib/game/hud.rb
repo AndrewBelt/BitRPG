@@ -26,3 +26,27 @@ class FramerateMeter < Container
 		@frame %= @delay
 	end
 end
+
+
+class DialoguePanel < Container
+	def initialize(font)
+		super()
+		
+		@rectangle = Rectangle.new
+		@rectangle.color = Color::WHITE
+		@rectangle.size = Vector[220, 40]
+		
+		@label = Label.new
+		@label.font = font
+		@label.color = Color::BLACK
+		@label.text = ''
+		@label.position = Vector[10, 10]
+		
+		@elements << @rectangle
+		@elements << @label
+	end
+	
+	def text=(text)
+		@label.text = text
+	end
+end

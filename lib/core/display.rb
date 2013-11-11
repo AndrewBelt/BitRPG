@@ -1,4 +1,4 @@
-require './lib/core/graphics'
+require 'core/graphics'
 
 class Display
 	# def self.new(size); end

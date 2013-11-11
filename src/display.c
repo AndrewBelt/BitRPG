@@ -21,7 +21,7 @@ VALUE display_new(VALUE cls, VALUE size)
 	ALLEGRO_DISPLAY *display = al_create_display(width, height);
 	
 	if (!display)
-		rb_raise(rb_eStandardError, "Could not open display");
+		rb_raise(rb_eRuntimeError, "Could not open display");
 	
 	VALUE obj = rb_data_object_alloc(cls, display, NULL, display_free);
 	return obj;
@@ -76,7 +76,7 @@ VALUE display_size(VALUE self)
 
 void Init_display()
 {
-	rb_require("./lib/core/display");
+	rb_require("core/display");
 	
 	// class Display
 	

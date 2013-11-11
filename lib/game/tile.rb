@@ -1,11 +1,13 @@
 # Combines a sprite with a coordinate position on the map
 class Tile
-	attr_accessor :sprite
-	attr_accessor :position
+	attr_accessor :sprite # Sprite
+	attr_accessor :position # Vector
+	attr_accessor :layer # Integer
 	
 	def initialize(sprite=nil)
 		@sprite = sprite
 		@position = Vector[0, 0]
+		@layer = 1
 	end
 	
 	# Simple setter for @position

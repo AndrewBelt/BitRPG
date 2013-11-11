@@ -1,5 +1,5 @@
 require 'matrix'
-require './lib/core/util'
+require 'core/util'
 
 
 class Bitmap

@@ -1,11 +1,53 @@
-require './lib/core/gui'
-require './lib/game/state'
-require './lib/game/tileset'
-require './lib/game/entity'
-require './lib/game/camera'
 require 'yaml'
+require 'singleton'
+require 'core/gui'
+require 'game/state'
+require 'game/tileset'
+require 'game/entity'
+require 'game/camera'
+require 'game/hud'
 
-class Map < Container
+
+class MapScreen < Container
+	include Singleton
+	
+	attr_accessor :map # Map
+	attr_accessor :dialogue_panel # DialoguePanel
+	
+	def initialize
+		super
+		
+		@map = Map.instance
+		@elements << @map
+		
+		# TODO
+		# Hardcoded
+		font = Font.new('fonts/visitor1.ttf', 10)
+		@dialogue_panel = DialoguePanel.new(font)
+		@dialogue_panel.position = Vector[10, 130]
+		
+		@saying = false
+		@say_mutex = Mutex.new
+		@say_resource = ConditionVariable.new
+	end
+	
+	def say(text)
+		@dialogue_panel.text = text
+		@elements << @dialogue_panel
+		@saying = true
+		
+		@say_mutex.synchronize do
+			@say_resource.wait(@say_mutex)
+		end
+		
+		@elements.delete(@dialogue_panel)
+	end
+end
+
+
+class Map < Element
+	include Singleton
+	
 	# The number of map tiles composing the map
 	attr_reader :map_size # Vector
 	
@@ -15,6 +57,10 @@ class Map < Container
 	attr_reader :map_tiles # [Tile]
 	attr_reader :entities # [Tile]
 	
+	attr_accessor :player # Player
+	
+	# TODO
+	# Remove this in favor of @player
 	attr_accessor :player_behavior # PlayerBehavior
 	attr_accessor :camera # Camera
 	
@@ -147,15 +193,9 @@ class Map < Container
 			
 			tile.draw(position)
 		end
-		
-		# Draw the elements of this container last
-		# e.g. HUD, pause menu, etc.
-		super
 	end
 	
 	def handle_event(event)
-		return true if super
-		
 		if @player_behavior
 			return true if @player_behavior.handle_event(event)
 		end
@@ -165,8 +205,6 @@ class Map < Container
 	
 	def step
 		# Step the frames of the elements
-		super
-		
 		@entities.each do |entity|
 			entity.step(self)
 		end

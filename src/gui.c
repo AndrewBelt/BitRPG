@@ -62,7 +62,7 @@ rectangle_draw(VALUE self, VALUE offset)
 void
 Init_gui()
 {
-	rb_require("./lib/core/gui");
+	rb_require("core/gui");
 	
 	// class Font
 	VALUE font_c = rb_const_get(rb_cObject, rb_intern("Font"));

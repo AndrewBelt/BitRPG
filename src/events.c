@@ -114,7 +114,7 @@ keyboard_held(VALUE cls)
 void
 Init_events()
 {
-	rb_require("./lib/core/events");
+	rb_require("core/events");
 	
 	// class EventQueue
 	

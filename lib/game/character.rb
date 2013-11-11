@@ -1,6 +1,6 @@
-require './lib/game/constants'
-require './lib/game/entity'
-require './lib/game/behavior'
+require 'game/constants'
+require 'game/entity'
+require 'game/behavior'
 require 'thread'
 
 # An entity with the ability to walk
@@ -48,7 +48,7 @@ class Character < Entity
 			animation_name = @face_direction.to_s
 			self.animation = animation_name
 		end
-			
+		
 		if @last_direction != @curr_direction
 			if @curr_direction
 				play

@@ -1,4 +1,4 @@
-require './lib/core/sprite'
+require 'core/sprite'
 require 'yaml'
 
 module Game
@@ -74,6 +74,12 @@ class << Game
 	alias_method :quit, :stop
 	alias_method :close, :stop
 	
+	def show(element)
+		@root_element = element
+	end
+	
+private
+	
 	def render
 		@display.clear
 		
@@ -87,20 +93,6 @@ class << Game
 		end
 		
 		@display.flip
-	end
-	
-	def limit_framerate
-		current_time = Time.now
-		
-		if @framerate > 0 and @start_time
-			duration = current_time - @start_time
-			sleep_time = 1.0 / @framerate - duration
-			sleep(sleep_time) if sleep_time > 0
-		end
-		
-		end_time = Time.now
-		@last_framerate = 1 / (end_time - @start_time)
-		@start_time = end_time
 	end
 	
 	def handle_events
@@ -121,7 +113,17 @@ class << Game
 		@root_element.step if @root_element
 	end
 	
-	def show(element)
-		@root_element = element
+	def limit_framerate
+		current_time = Time.now
+		
+		if @framerate > 0 and @start_time
+			duration = current_time - @start_time
+			sleep_time = 1.0 / @framerate - duration
+			sleep(sleep_time) if sleep_time > 0
+		end
+		
+		end_time = Time.now
+		@last_framerate = 1 / (end_time - @start_time)
+		@start_time = end_time
 	end
 end
