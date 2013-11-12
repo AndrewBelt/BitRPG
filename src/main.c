@@ -30,8 +30,8 @@ main(int argc, char **argv)
 	// Initialize Ruby
 	ruby_init();
 	ruby_init_loadpath();
-	VALUE load_path = rb_gv_get("$:");
-	rb_funcall(load_path, rb_intern("<<"), 1, rb_str_new2("./lib"));
+	// $: << './lib'
+	rb_funcall(rb_gv_get("$:"), rb_intern("<<"), 1, rb_str_new2("./lib"));
 	
 	// Run the game
 	rb_protect(bitrpg_run, rb_str_new2("./lib/main.rb"), &error);

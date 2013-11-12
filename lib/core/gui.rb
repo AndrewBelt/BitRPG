@@ -21,7 +21,8 @@ end
 
 class Composite < Element
 	def draw(offset)
-		elements.each do |element|
+		# Draw the elements in reverse
+		elements.reverse_each do |element|
 			element.draw(@position + offset)
 		end
 	end
@@ -53,6 +54,14 @@ class Container < Composite
 	def initialize
 		super
 		@elements = []
+	end
+	
+	def add(element)
+		@elements.unshift(element)
+	end
+	
+	def remove(element)
+		@elements.delete(element)
 	end
 end
 

@@ -19,8 +19,8 @@ class Entity < Tile
 	def action
 		if block_given?
 			@action = Proc.new
-		else
-			@action.call if @action
+		elsif @action
+			@action.call
 		end
 	end
 	
@@ -110,6 +110,7 @@ class Entity::Type
 		attr_reader :all
 	end
 	
+	attr_reader :name
 	attr_reader :animations # {name => [sprite]}
 	attr_reader :delay # Integer
 	attr_reader :collides # Boolean
@@ -118,6 +119,8 @@ class Entity::Type
 	attr_reader :origin # Vector
 	
 	def initialize(data, tileset)
+		@name = data.fetch('name', '')
+		
 		size = Vector.elements(data.fetch('size', [1, 1]))
 		tile_size = tileset.tile_size
 		

@@ -41,15 +41,8 @@ class << Game
 	def run
 		@running = true
 		
-		# The script thread
-		@script_thread = Thread.new do
-			begin
-				Kernel::load './scripts/start.rb'
-			rescue => e
-				puts e
-				puts e.backtrace
-				@running = false
-			end
+		run_script do
+			Kernel::load './scripts/start.rb'
 		end
 		
 		@start_time = Time.now
@@ -76,6 +69,30 @@ class << Game
 	
 	def show(element)
 		@root_element = element
+	end
+	
+	# Runs the given block on a unique thread
+	# If a script is already running, raises an exception
+	# unless fail_silently is true.
+	def run_script(fail_silently=false)
+		if script_running?
+			raise 'Script thread already running' unless fail_silently
+			return
+		end
+		
+		@script_thread = Thread.new do
+			begin
+				yield
+			rescue => e
+				puts e
+				puts e.backtrace
+				stop
+			end
+		end
+	end
+	
+	def script_running?
+		@script_thread and @script_thread.alive?
 	end
 	
 private

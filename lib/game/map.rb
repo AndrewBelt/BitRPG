@@ -18,29 +18,7 @@ class MapScreen < Container
 		super
 		
 		@map = Map.instance
-		@elements << @map
-		
-		# TODO
-		# Hardcoded
-		font = Font.new('fonts/visitor1.ttf', 10)
-		@dialogue_panel = DialoguePanel.new(font)
-		@dialogue_panel.position = Vector[10, 130]
-		
-		@saying = false
-		@say_mutex = Mutex.new
-		@say_resource = ConditionVariable.new
-	end
-	
-	def say(text)
-		@dialogue_panel.text = text
-		@elements << @dialogue_panel
-		@saying = true
-		
-		@say_mutex.synchronize do
-			@say_resource.wait(@say_mutex)
-		end
-		
-		@elements.delete(@dialogue_panel)
+		add @map
 	end
 end
 
@@ -57,11 +35,7 @@ class Map < Element
 	attr_reader :map_tiles # [Tile]
 	attr_reader :entities # [Tile]
 	
-	attr_accessor :player # Player
-	
-	# TODO
-	# Remove this in favor of @player
-	attr_accessor :player_behavior # PlayerBehavior
+	attr_reader :player # Character
 	attr_accessor :camera # Camera
 	
 	attr_accessor :background_color # Color
@@ -148,8 +122,12 @@ class Map < Element
 		@camera = Camera.new
 	end
 	
-	def add(entity, layer=1)
+	def add(entity)
 		@entities << entity
+	end
+	
+	def remove(entity)
+		@entities.delete(entity)
 	end
 	
 	def collides?(position)
@@ -168,6 +146,20 @@ class Map < Element
 		false
 	end
 	
+	# Helper methods
+	
+	def player=(player)
+		if player
+			player.behavior = PlayerBehavior.new
+		end
+		
+		@player = player
+	end
+	
+	def follow(entity)
+		@camera = FollowCamera.new(entity)
+	end
+	
 	# Returns a sorted list of all Tiles, Entities, Characters, etc
 	# for rendering
 	def all_tiles
@@ -182,8 +174,6 @@ class Map < Element
 		center = @camera.center + Vector[0.5, 0.5]
 		camera_offset = @tile_size.mul(center) - screen_size / 2
 		
-		# TODO
-		# Combine static tile rendering with entities
 		all_tiles.each do |tile|
 			position = @tile_size.mul(tile.position) - camera_offset
 			position = position.round
@@ -196,8 +186,16 @@ class Map < Element
 	end
 	
 	def handle_event(event)
-		if @player_behavior
-			return true if @player_behavior.handle_event(event)
+		if !Game.script_running? and @player
+			# Assume that the player's behavior is a PlayerBehavior
+			return true if @player.behavior.handle_event(event)
+		end
+		
+		case event.type
+		when :key_down
+			if event.key == :space
+				try_action
+			end
 		end
 		
 		false
@@ -207,6 +205,20 @@ class Map < Element
 		# Step the frames of the elements
 		@entities.each do |entity|
 			entity.step(self)
+		end
+	end
+	
+private
+	
+	def try_action
+		if @player and !@player.walking?
+			face_position = @player.face_position
+			face_entity = @entities.find {|e| e.position == face_position }
+			return unless face_entity
+			
+			Game.run_script do
+				face_entity.action
+			end
 		end
 	end
 end

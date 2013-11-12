@@ -21,7 +21,7 @@ class Character < Entity
 		
 		# Override the next direction if the behavior has one
 		if @behavior and !@curr_direction
-			@next_direction = @behavior.next_direction
+			@next_direction ||= @behavior.next_direction
 		end
 		
 		# Potentially begin walking
@@ -29,9 +29,7 @@ class Character < Entity
 			@face_direction = @next_direction
 			
 			# Check collision
-			new_position = @position + DIRECTIONS[@next_direction]
-			
-			if map.collides?(new_position)
+			if map.collides?(face_position)
 				@next_direction = nil
 				finish_walk
 			else
@@ -96,6 +94,14 @@ class Character < Entity
 		nil
 	end
 	
+	def walking?
+		@curr_direction
+	end
+	
+	def face_position
+		@position + DIRECTIONS[@face_direction]
+	end
+	
 private
 	
 	def finish_walk
@@ -114,6 +120,6 @@ class Character::Type < Entity::Type
 	def initialize(data, tileset)
 		super
 		
-		@slowness = data.fetch('slowness', 1000)
+		@slowness = data.fetch('slowness', 1)
 	end
 end
