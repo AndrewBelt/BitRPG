@@ -131,19 +131,27 @@ class Map < Element
 	end
 	
 	def collides?(position)
+		# Check boundary collision
 		return true unless (0...@map_size.x) === position.x and
 			(0...@map_size.y) === position.y
 		
+		# Check tile collision (using special collision layer)
 		index = position.x + @map_size.x * position.y
 		return true if @collisions[index]
 		
-		@entities.each do |entity|
-			if entity.hit?(position)
-				return true if entity.collides?
-			end
+		# Check entity collision
+		pick(position).each do |entity|
+			return true if entity.collides?
 		end
 		
 		false
+	end
+	
+	# Returns the entities found at a map position
+	def pick(position)
+		@entities.select do |entity|
+			entity.hit?(position)
+		end
 	end
 	
 	# Helper methods
@@ -170,7 +178,7 @@ class Map < Element
 	end
 	
 	def draw(offset)
-		screen_size = Game.size
+		screen_size = Game.instance.size
 		center = @camera.center + Vector[0.5, 0.5]
 		camera_offset = @tile_size.mul(center) - screen_size / 2
 		
@@ -186,7 +194,7 @@ class Map < Element
 	end
 	
 	def handle_event(event)
-		if !Game.script_running? and @player
+		if !Game.instance.script_running? and @player
 			# Assume that the player's behavior is a PlayerBehavior
 			return true if @player.behavior.handle_event(event)
 		end
@@ -213,10 +221,10 @@ private
 	def try_action
 		if @player and !@player.walking?
 			face_position = @player.face_position
-			face_entity = @entities.find {|e| e.position == face_position }
+			face_entity = pick(face_position).find {|e| e.action? }
 			return unless face_entity
 			
-			Game.run_script do
+			Game.instance.run_script do
 				face_entity.action
 			end
 		end

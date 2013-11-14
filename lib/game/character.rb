@@ -113,13 +113,12 @@ end
 
 
 class Character::Type < Entity::Type
-	@all = {}
+	@all = []
 	
 	attr_reader :slowness
 	
 	def initialize(data, tileset)
 		super
-		
 		@slowness = data.fetch('slowness', 1)
 	end
 end

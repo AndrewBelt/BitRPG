@@ -18,7 +18,7 @@ class FramerateMeter < Container
 	
 	def step
 		if @frame == 0
-			last_framerate = Game.last_framerate
+			last_framerate = Game.instance.last_framerate
 			@label.text = "%.2f fps" % last_framerate if last_framerate
 		end
 		

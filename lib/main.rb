@@ -13,8 +13,13 @@ logo = %q{ ___ _ _   ___ ___  ___
 }
 puts logo
 
+# Eager-load the singleton classes
+GAME = Game.instance
+MAP_SCREEN = MapScreen.instance
+MAP = Map.instance
+
 # Initialize modules and classes
-Game.from_yaml('./config.yml')
+GAME.from_yaml('./config.yml')
 Tileset.from_yaml('./tilesets.yml')
 
 # TODO
@@ -22,17 +27,13 @@ Tileset.from_yaml('./tilesets.yml')
 default_font = Font.new('fonts/visitor1.ttf', 10)
 DialoguePanel.font = default_font
 
-# Eager-load the singleton classes
-MAP_SCREEN = MapScreen.instance
-MAP = Map.instance
-
 # The REPL thread
 require './lib/core/irb'
 repl_thread = Thread.new do
 	sleep 0.1
 	IRB.start_mini
-	Game.quit
+	GAME.quit
 end
 
-Game.run
+GAME.run
 repl_thread.kill if repl_thread.alive?

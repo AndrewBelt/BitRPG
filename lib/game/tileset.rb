@@ -52,14 +52,13 @@ class Tileset
 		entities = data.fetch('entities', {})
 		entities.each do |name, entity_data|
 			entity_data['name'] = name
-			Entity::Type.all[name] = Entity::Type.new(entity_data, self)
+			Entity::Type.create(entity_data, self)
 		end
 		
 		characters = data.fetch('characters', {})
 		characters.each do |name, character_data|
 			character_data['name'] = name
-			Character::Type.all[name] =
-				Character::Type.new(character_data, self)
+			Character::Type.create(character_data, self)
 		end
 	end
 	

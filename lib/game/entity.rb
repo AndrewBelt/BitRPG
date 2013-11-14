@@ -9,7 +9,8 @@ class Entity < Tile
 	def initialize(name)
 		super()
 		
-		@type = self.class::Type.all.fetch(name)
+		@type = self.class::Type.find(name)
+		raise "Could not find type '#{name}'" unless @type
 		@offset = Vector[0, 0]
 		
 		self.animation = 'default'
@@ -24,22 +25,26 @@ class Entity < Tile
 		end
 	end
 	
+	def action?
+		!@action.nil?
+	end
+	
 	# Position methods
 	
 	def position
 		super + @offset
 	end
 	
-	def position=(pos)
+	def position=(position)
 		super
 		@offset = Vector[0, 0]
 	end
 	
 	def hit?(position)
-		hits = (@position == position)
+		@position == position
+		
 		# TODO
 		# Support hit-testing entities larger than [1, 1]
-		hits
 	end
 	
 	def collides?
@@ -104,10 +109,20 @@ end
 
 
 class Entity::Type
-	@all = {}
+	@all = []
 	
 	class << self
 		attr_reader :all
+		
+		def create(*args)
+			type = self.new(*args)
+			@all << type
+			type
+		end
+		
+		def find(name)
+			@all.find { |t| t.name == name }
+		end
 	end
 	
 	attr_reader :name

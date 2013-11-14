@@ -1,14 +1,13 @@
-require 'core/sprite'
 require 'yaml'
+require 'singleton'
+require 'core/sprite'
 
-module Game
-end
-
-class << Game
-	attr_accessor :framerate
-	attr_reader :last_framerate
-	attr_accessor :root_element
-	attr_reader :size
+class Game
+	include Singleton
+	attr_accessor :framerate # Number
+	attr_reader :last_framerate # Number
+	attr_accessor :root_element # Element
+	attr_reader :size # Vector
 	
 	# Must be called before any methods of Game are used
 	def from_yaml(filename)
@@ -66,6 +65,7 @@ class << Game
 	
 	alias_method :quit, :stop
 	alias_method :close, :stop
+	alias_method :exit, :stop
 	
 	def show(element)
 		@root_element = element
