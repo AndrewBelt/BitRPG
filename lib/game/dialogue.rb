@@ -1,5 +1,5 @@
 require 'core/gui'
-require 'game/character.rb'
+require 'game/character'
 
 class DialoguePanel < Container
 	class << self
@@ -14,7 +14,7 @@ class DialoguePanel < Container
 		
 		rectangle = Rectangle.new
 		rectangle.color = Color::WHITE
-		rectangle.size = Vector[220, 40]
+		rectangle.size = Vector[Game.instance.size.x - 20, 40]
 		add rectangle
 		
 		label = Label.new
@@ -55,6 +55,11 @@ end
 class Character
 	def say(text)
 		dialogue_panel = DialoguePanel.new(@type.name, text)
+		
+		# TODO
+		# Hard coded
+		dialogue_panel.position = Vector[10, Game.instance.size.y - 40 - 10]
+		
 		MapScreen.instance.add(dialogue_panel)
 		dialogue_panel.wait
 		MapScreen.instance.elements.delete(dialogue_panel)

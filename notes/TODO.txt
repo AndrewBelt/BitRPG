@@ -4,23 +4,9 @@ TODO
 
 Game
 - Add global controls methods
-- Queue up scripts to be run
-  - Immediately?
-  - When the current script exits?
 
 Map
 - z-ordering of tiles and entities
-- collisions
-  - map boundary
-  - 'collision' layer
-  - colliding entities
-
-Character
-- behaviors
-- map should pass events to its PlayerBehavior
-
-GUI
-- Dialogue panel
 
 Audio
 - Music
