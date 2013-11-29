@@ -11,3 +11,7 @@ Map
 Audio
 - Music
 - Sound
+
+Windows
+- Sometimes shows "Not Responding"
+- Errors display and then close the console window immediately
