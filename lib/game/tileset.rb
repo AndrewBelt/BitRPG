@@ -66,8 +66,8 @@ class Tileset
 		sprite = Sprite.new(@bitmap)
 		
 		tile_rect = @tile_size + @spacing
-		sprite.clip_position = @margin + tile_rect.mul(coords)
-		sprite.clip_size = @tile_size.mul(sprite_size)
+		sprite.clip_position = @margin + tile_rect * coords
+		sprite.clip_size = @tile_size * sprite_size
 		
 		# TODO
 		# Error checking

@@ -1,33 +1,54 @@
-require 'matrix'
-
 class Vector
-	def x
-		self[0]
+	attr_accessor :x
+	attr_accessor :y
+	
+	class << self
+		# deprecated
+		def [](x=0, y=0)
+			Vector.new(x, y)
+		end
 	end
 	
-	def y
-		self[1]
+	def initialize(x=0, y=0)
+		@x = x
+		@y = y
 	end
 	
-	def x=(x)
-		self[0] = x
+	def +(other)
+		Vector.new(@x + other.x, @y + other.y)
 	end
 	
-	def y=(y)
-		self[1] = y
+	def -(other)
+		Vector.new(@x - other.x, @y - other.y)
 	end
 	
-	# Element-wise multiplication
-	def mul(other)
-		self.map2(other, &:*)
+	# Multiplies self with a scalar or another Vector (element-wise)
+	def *(other)
+		case other
+		when Vector
+			Vector.new(@x * other.x, @y * other.y)
+		else
+			Vector.new(@x * other, @y * other)
+		end
 	end
 	
-	# Element-wise multiplication
-	def div(other)
-		self.map2(other, &:/)
+	# Divides self by a scalar or another Vector (element-wise)
+	def /(other)
+		case other
+		when Vector
+			Vector.new(@x / other.x, @y / other.y)
+		else
+			Vector.new(@x / other, @y / other)
+		end
 	end
 	
 	def round
-		map(&:round)
+		Vector.new(@x.round, @y.round)
+	end
+	
+	def inspect
+		"Vector[#{@x}, #{@y}]"
 	end
 end
+
+p Vector.new

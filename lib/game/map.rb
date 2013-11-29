@@ -188,10 +188,10 @@ class Map < Element
 	def draw(offset)
 		screen_size = Game.instance.size
 		center = @camera.center + Vector[0.5, 0.5]
-		camera_offset = @tile_size.mul(center) - screen_size / 2
+		camera_offset = @tile_size * center - screen_size / 2
 		
 		all_tiles.each do |tile|
-			position = @tile_size.mul(tile.position) - camera_offset
+			position = @tile_size * tile.position - camera_offset
 			position = position.round
 			
 			tile.draw(position)
