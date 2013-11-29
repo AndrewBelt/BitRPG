@@ -1,4 +1,3 @@
-require 'core/util'
 require 'game/game'
 require 'game/tileset'
 require 'game/map'

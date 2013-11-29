@@ -140,19 +140,19 @@ class Entity::Type
 	def initialize(data, tileset)
 		@name = data.fetch('name', '')
 		
-		size = Vector.elements(data.fetch('size', [1, 1]))
+		size = Vector[*data.fetch('size', [1, 1])]
 		tile_size = tileset.tile_size
 		
 		@animations = {}
 		data['animations'].each do |animation_name, frames|
 			@animations[animation_name] = frames.collect do |coords_ary|
-				coords = Vector.elements(coords_ary)
+				coords = Vector[*coords_ary]
 				tileset.at(coords, size)
 			end
 		end
 		
 		@delay = data.fetch('delay', 1)
-		@origin = Vector.elements(data.fetch('origin', [0, 0]))
+		@origin = Vector[*data.fetch('origin', [0, 0])]
 		@collides = data.fetch('collides', false)
 	end
 end

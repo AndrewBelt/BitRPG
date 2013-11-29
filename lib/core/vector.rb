@@ -3,10 +3,7 @@ class Vector
 	attr_accessor :y
 	
 	class << self
-		# deprecated
-		def [](x=0, y=0)
-			Vector.new(x, y)
-		end
+		alias_method :[], :new
 	end
 	
 	def initialize(x=0, y=0)
@@ -15,40 +12,42 @@ class Vector
 	end
 	
 	def +(other)
-		Vector.new(@x + other.x, @y + other.y)
+		Vector[@x + other.x, @y + other.y]
 	end
 	
 	def -(other)
-		Vector.new(@x - other.x, @y - other.y)
+		Vector[@x - other.x, @y - other.y]
 	end
 	
 	# Multiplies self with a scalar or another Vector (element-wise)
 	def *(other)
 		case other
 		when Vector
-			Vector.new(@x * other.x, @y * other.y)
+			Vector[@x * other.x, @y * other.y]
 		else
-			Vector.new(@x * other, @y * other)
+			Vector[@x * other, @y * other]
 		end
 	end
+	
+	alias_method :mul, :*
 	
 	# Divides self by a scalar or another Vector (element-wise)
 	def /(other)
 		case other
 		when Vector
-			Vector.new(@x / other.x, @y / other.y)
+			Vector[@x / other.x, @y / other.y]
 		else
-			Vector.new(@x / other, @y / other)
+			Vector[@x / other, @y / other]
 		end
 	end
 	
+	alias_method :div, :/
+	
 	def round
-		Vector.new(@x.round, @y.round)
+		Vector[@x.round, @y.round]
 	end
 	
 	def inspect
 		"Vector[#{@x}, #{@y}]"
 	end
 end
-
-p Vector.new

@@ -1,5 +1,4 @@
-require 'matrix'
-require 'core/util'
+require 'core/vector'
 
 
 class Bitmap

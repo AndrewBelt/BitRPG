@@ -35,16 +35,16 @@ class Tileset
 		# Look for the bitmap relative to the 'tilesets' directory
 		path = File.realpath(data['image'])
 		@bitmap = Bitmap.load(path)
-		@tile_size = Vector.elements(data.fetch('tile_size'))
+		@tile_size = Vector[*data.fetch('tile_size')]
 		margin = data.fetch('margin', 0)
 		spacing = data.fetch('spacing', 0)
 		
 		@margin = Vector[margin, margin]
 		@spacing = Vector[spacing, spacing]
 		
-		sheet_rect = @bitmap.size - 2 * @margin + @spacing
+		sheet_rect = @bitmap.size - @margin * 2 + @spacing
 		tile_rect = @tile_size + @spacing
-		@sheet_size = sheet_rect.div(tile_rect)
+		@sheet_size = sheet_rect / tile_rect
 		
 		# TODO
 		# Check validity of @sheet_size

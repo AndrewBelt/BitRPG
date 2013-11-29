@@ -20,9 +20,8 @@ class Game
 		# Display
 		
 		display_conf = data.fetch('display')
-		size_ary = [display_conf.fetch('width'),
+		@size = Vector[display_conf.fetch('width'),
 			display_conf.fetch('height')]
-		@size = Vector.elements(size_ary)
 		@zoom = display_conf.fetch('zoom', 1)
 		@framerate = display_conf.fetch('framerate', 0)
 		

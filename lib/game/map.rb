@@ -65,8 +65,8 @@ class Map < Element
 	def from_data(data)
 		clear
 		
-		@map_size = Vector.elements(data.fetch('map_size'))
-		@tile_size = Vector.elements(data.fetch('tile_size'))
+		@map_size = Vector[*data.fetch('map_size')]
+		@tile_size = Vector[*data.fetch('tile_size')]
 		
 		# Load tilesets
 		

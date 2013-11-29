@@ -12,7 +12,7 @@ class Tile
 	
 	# Simple setter for @position
 	def place(x, y)
-		@position = Vector.elements([x, y])
+		@position = Vector[x, y]
 	end
 	
 	def draw(offset)
