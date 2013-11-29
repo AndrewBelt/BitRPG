@@ -68,6 +68,8 @@ end
 
 class Font
 	class << self
+		attr_accessor :default # Font
+		
 		def new(*args)
 			self.load(*args)
 		end

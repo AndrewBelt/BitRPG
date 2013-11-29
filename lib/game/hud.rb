@@ -2,13 +2,13 @@
 class FramerateMeter < Container
 	attr_accessor :delay # Integer
 	
-	def initialize(font)
+	def initialize()
 		super()
 		@delay = 1
 		@frame = 0
 		
 		@label = Label.new
-		@label.font = font
+		@label.font = Font.default
 		
 		# TODO
 		# This shouldn't be hard coded
@@ -19,7 +19,9 @@ class FramerateMeter < Container
 	def step
 		if @frame == 0
 			last_framerate = Game.instance.last_framerate
-			@label.text = "%.2f fps" % last_framerate if last_framerate
+			if last_framerate
+				@label.text = "%.2f fps" % last_framerate
+			end
 		end
 		
 		@frame += 1

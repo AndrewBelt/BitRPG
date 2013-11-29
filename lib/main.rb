@@ -24,12 +24,12 @@ Tileset.from_yaml('./tilesets.yml')
 
 # TODO
 # Figure out a better font management scheme
-default_font = Font.new('fonts/visitor1.ttf', 10)
-DialoguePanel.font = default_font
+Font.default = Font.new('fonts/visitor1.ttf', 10)
 
 # The REPL thread
 require './lib/core/irb'
 repl_thread = Thread.new do
+	# Pause for suspense
 	sleep 0.1
 	IRB.start_mini
 	GAME.quit

@@ -82,7 +82,9 @@ class Map < Element
 				next
 			end
 			
-			tilesets[first_gid] = Tileset.all[tileset_name]
+			tileset = Tileset.all[tileset_name]
+			raise "Could not find tileset '#{tileset_name}'" unless tileset
+			tilesets[first_gid] = tileset
 		end
 		
 		# Reversed so we can find the greatest key less than or
@@ -91,7 +93,8 @@ class Map < Element
 		
 		# Load layers
 		
-		data['layers'].each do |layer, gids|
+		layer = 0
+		data['layers'].each do |layer_name, gids|
 			# Tile layer
 			gids.each_index do |index|
 				gid = gids[index]
@@ -112,11 +115,16 @@ class Map < Element
 				
 				# Create and add the tile
 				tile = Tile.new(sprite)
+				tile.layer = layer
 				position_y, position_x = index.divmod(@map_size.x)
 				tile.position = Vector[position_x, position_y]
 				@map_tiles << tile
 			end
+			
+			layer += 1
 		end
+		
+		@map_tiles.sort!
 		
 		# Set up camera crew
 		@camera = Camera.new
@@ -171,10 +179,10 @@ class Map < Element
 	# Returns a sorted list of all Tiles, Entities, Characters, etc
 	# for rendering
 	def all_tiles
-		# TODO
-		# Sort by z-order
+		@entities.sort!
 		
-		@map_tiles + @entities
+		all_tiles = @map_tiles + @entities
+		all_tiles.sort
 	end
 	
 	def draw(offset)
@@ -185,9 +193,6 @@ class Map < Element
 		all_tiles.each do |tile|
 			position = @tile_size.mul(tile.position) - camera_offset
 			position = position.round
-			
-			# TODO
-			# Draw only if the bitmap is in the boundary
 			
 			tile.draw(position)
 		end

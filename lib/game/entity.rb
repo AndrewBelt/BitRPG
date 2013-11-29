@@ -105,6 +105,10 @@ class Entity < Tile
 	def draw(offset)
 		super(offset - @type.origin)
 	end
+	
+	def inspect
+		"\#<#{self.class}:#{@type.name}>"
+	end
 end
 
 

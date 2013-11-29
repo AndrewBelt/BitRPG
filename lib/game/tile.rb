@@ -18,4 +18,8 @@ class Tile
 	def draw(offset)
 		@sprite.draw(offset)
 	end
+	
+	def <=>(other)
+		@layer <=> other.layer
+	end
 end

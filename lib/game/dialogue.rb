@@ -2,10 +2,6 @@ require 'core/gui'
 require 'game/character'
 
 class DialoguePanel < Container
-	class << self
-		attr_accessor :font
-	end
-	
 	def initialize(name, text)
 		super()
 		
@@ -18,7 +14,7 @@ class DialoguePanel < Container
 		add rectangle
 		
 		label = Label.new
-		label.font = DialoguePanel.font
+		label.font = Font.default
 		label.color = Color::BLACK
 		label.text = "#{name}: #{text}"
 		label.position = Vector[8, 6]
