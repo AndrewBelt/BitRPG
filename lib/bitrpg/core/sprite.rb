@@ -11,8 +11,8 @@ class Sprite
 		@zoom = 1
 	end
 	
-	def draw_to(dest_surface, rect)
-		dest_surface.blit(@surface, @clip_rect, rect.position, @zoom)
+	def draw_to(dest_surface, position)
+		dest_surface.blit(@surface, @clip_rect, position, @zoom)
 	end
 	
 	def size

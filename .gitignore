@@ -3,3 +3,6 @@
 *.o
 .yardoc
 doc
+
+# OS garbage
+.DS_Store

@@ -102,8 +102,8 @@ class Entity < Tile
 		end
 	end
 	
-	def draw(offset)
-		super(offset - @type.origin)
+	def draw_to(dest, position)
+		super(dest, position - @type.origin)
 	end
 	
 	def inspect

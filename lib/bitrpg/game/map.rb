@@ -181,18 +181,18 @@ class Map < Element
 	end
 	
 	def draw_to(dest, rect)
-		center = @camera.center + Vector[0.5, 0.5]
-		camera_offset = @tile_size * center - rect.size / 2
-		camera_rect = rect.shift(camera_offset)
+		camera_offset = (@tile_size * @camera.center -
+			(rect.size - @tile_size) / 2).round
+		camera_rect = Rect.new(camera_offset, rect.size)
 		
 		all_tiles.each do |tile|
-			rect_tile = Rect.new((@tile_size * tile.position -
-				camera_offset).round, tile.sprite.size)
+			tile_rect = Rect.new((@tile_size * tile.position).round,
+				tile.sprite.size)
 			
 			# Don't draw entity if not in the bounding box of the screen
-			next unless camera_rect.overlaps?(rect_tile)
+			next unless camera_rect.overlaps?(tile_rect)
 			
-			tile.draw_to(dest, rect_tile)
+			tile.draw_to(dest, tile_rect.position - camera_offset)
 		end
 	end
 	

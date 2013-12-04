@@ -7,6 +7,7 @@
 void
 Init_bitrpg_native()
 {
+	Init_bitrpg_vector();
 	Init_bitrpg_window();
 	Init_bitrpg_surface();
 	Init_bitrpg_event();

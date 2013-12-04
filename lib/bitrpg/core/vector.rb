@@ -1,6 +1,8 @@
+
+# Immutable pair of numbers
 class Vector
-	attr_accessor :x # Number
-	attr_accessor :y # Number
+	attr_reader :x # Number
+	attr_reader :y # Number
 	
 	class << self
 		alias_method :[], :new
@@ -21,6 +23,10 @@ class Vector
 	
 	def -(other)
 		Vector[@x - other.x, @y - other.y]
+	end
+	
+	def -@
+		Vector[-@x, -@y]
 	end
 	
 	# Multiplies self with a scalar or another Vector (element-wise)
@@ -54,5 +60,12 @@ class Vector
 	
 	def inspect
 		"Vector[#{@x}, #{@y}]"
+	end
+end
+
+
+class Vector2
+	class << self
+		alias_method :[], :new
 	end
 end

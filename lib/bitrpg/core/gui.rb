@@ -21,11 +21,11 @@ end
 
 class Composite < Element
 	def draw_to(dest, rect)
-		rect_offset = rect.shift(@position)
+		offset_rect = rect.shift(@position)
 		
 		# Draw the elements in reverse
 		elements.reverse_each do |element|
-			dest.draw(element, rect_offset)
+			dest.draw(element, offset_rect)
 		end
 	end
 	
