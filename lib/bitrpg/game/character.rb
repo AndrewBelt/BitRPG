@@ -1,7 +1,7 @@
-require 'game/constants'
-require 'game/entity'
-require 'game/behavior'
 require 'thread'
+require 'bitrpg/game/constants'
+require 'bitrpg/game/entity'
+require 'bitrpg/game/behavior'
 
 # An entity with the ability to walk
 class Character < Entity
@@ -17,7 +17,7 @@ class Character < Entity
 	
 	# Walking
 	
-	def step(map)
+	def step
 		
 		# Override the next direction if the behavior has one
 		if @behavior and !@curr_direction
@@ -29,7 +29,7 @@ class Character < Entity
 			@face_direction = @next_direction
 			
 			# Check collision
-			if map.collides?(face_position)
+			if Map.instance.collides?(face_position)
 				@next_direction = nil
 				finish_walk
 			else

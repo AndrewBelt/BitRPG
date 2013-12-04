@@ -2,6 +2,10 @@
 TODO
 ===
 
+Core
+- Rendering the scene graph should be done with a Rect bounding box
+	instead of a Vector offset.
+
 Game
 - Add global controls methods
 
@@ -12,6 +16,6 @@ Audio
 - Music
 - Sound
 
-Windows
+Win32 build
 - Sometimes shows "Not Responding"
 - Errors display and then close the console window immediately

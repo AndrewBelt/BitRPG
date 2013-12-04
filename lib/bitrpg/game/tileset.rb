@@ -1,16 +1,16 @@
-require 'core/sprite'
-require 'game/entity'
-require 'game/character'
 require 'yaml'
+require 'bitrpg/core/sprite'
+require 'bitrpg/game/entity'
+require 'bitrpg/game/character'
 
 class Tileset
 	include Enumerable
 	
-	attr_reader :bitmap
-	attr_reader :tile_size
-	attr_reader :margin
-	attr_reader :spacing
-	attr_reader :sheet_size
+	attr_reader :surface # Surface
+	attr_reader :tile_size # Vector
+	attr_reader :margin # Vector
+	attr_reader :spacing # Vector
+	attr_reader :sheet_size # Vector
 	
 	# name => Tileset
 	@all = {}
@@ -32,9 +32,9 @@ class Tileset
 	end
 	
 	def initialize(data)
-		# Look for the bitmap relative to the 'tilesets' directory
+		# Look for the surface relative to the 'tilesets' directory
 		path = File.realpath(data['image'])
-		@bitmap = Bitmap.load(path)
+		@surface = Surface.load(path)
 		@tile_size = Vector[*data.fetch('tile_size')]
 		margin = data.fetch('margin', 0)
 		spacing = data.fetch('spacing', 0)
@@ -42,7 +42,7 @@ class Tileset
 		@margin = Vector[margin, margin]
 		@spacing = Vector[spacing, spacing]
 		
-		sheet_rect = @bitmap.size - @margin * 2 + @spacing
+		sheet_rect = @surface.size - @margin * 2 + @spacing
 		tile_rect = @tile_size + @spacing
 		@sheet_size = sheet_rect / tile_rect
 		
@@ -63,11 +63,11 @@ class Tileset
 	end
 	
 	def at(coords, sprite_size=Vector[1, 1])
-		sprite = Sprite.new(@bitmap)
+		sprite = Sprite.new(@surface)
 		
 		tile_rect = @tile_size + @spacing
-		sprite.clip_position = @margin + tile_rect * coords
-		sprite.clip_size = @tile_size * sprite_size
+		sprite.clip_rect = Rect.new(@margin + tile_rect * coords,
+			@tile_size * sprite_size)
 		
 		# TODO
 		# Error checking
@@ -75,10 +75,10 @@ class Tileset
 		sprite
 	end
 	
-	# Returns a bitmap by index
+	# Returns a surface by index
 	# The size is assumed to be [1, 1] tiles, so this is useful for
 	# static map tiles.
-	# In addition, bitmaps are cached for the lifetime of the tileset.
+	# In addition, surfaces are cached for the lifetime of the tileset.
 	def [](id)
 		y, x = id.divmod(@sheet_size.x)
 		at(Vector[x, y])

@@ -1,4 +1,4 @@
-require 'game/tile'
+require 'bitrpg/game/tile'
 
 # A Tile with animation and actions
 class Entity < Tile
@@ -85,7 +85,7 @@ class Entity < Tile
 	
 	# Game loop methods
 	
-	def step(map)
+	def step
 		if @animating
 			if @delay_frame >= @type.delay
 				@animation_frame += 1

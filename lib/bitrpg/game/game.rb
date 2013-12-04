@@ -1,13 +1,11 @@
 require 'yaml'
 require 'singleton'
-require 'core/sprite'
 
 class Game
 	include Singleton
 	attr_accessor :framerate # Number
 	attr_reader :last_framerate # Number
 	attr_accessor :root_element # Element
-	attr_reader :size # Vector
 	
 	# Must be called before any methods of Game are used
 	def from_yaml(filename)
@@ -17,23 +15,23 @@ class Game
 	end
 	
 	def from_data(data)
-		# Display
+		window_conf = data.fetch('window')
+		screen_size = Vector[window_conf.fetch('width'),
+			window_conf.fetch('height')]
+		zoom = window_conf.fetch('zoom', 1)
+		@framerate = window_conf.fetch('framerate', 0)
+		title = window_conf.fetch('title', '')
 		
-		display_conf = data.fetch('display')
-		@size = Vector[display_conf.fetch('width'),
-			display_conf.fetch('height')]
-		@zoom = display_conf.fetch('zoom', 1)
-		@framerate = display_conf.fetch('framerate', 0)
+		window_size = screen_size * zoom
+		@window = Window.new(title, window_size)
 		
-		display_size = @size * @zoom
-		@display = Display.new(display_size)
-		
-		@queue = EventQueue.new
-		@queue.register_display(@display)
-		@queue.register_keyboard
-		
-		screen_bitmap = Bitmap.new(@size)
-		@screen = Sprite.new(screen_bitmap)
+		screen_surface = Surface.new(screen_size)
+		@screen = Sprite.new(screen_surface)
+		@screen.zoom = zoom
+	end
+	
+	def rect
+		@screen.clip_rect
 	end
 	
 	def run
@@ -53,8 +51,8 @@ class Game
 		end
 		
 		# Cleanup
-		@display.close
-		@display = nil
+		@window.destroy
+		@window = nil
 	end
 	
 	def stop
@@ -97,23 +95,23 @@ class Game
 private
 	
 	def render
-		@display.clear
+		@window.surface.fill(Color::CYAN)
 		
 		if @root_element
-			@screen.bitmap.activate
-			@screen.bitmap.clear
-			@root_element.draw(Vector[0, 0])
+			# Draw root_element to screen
+			@screen.surface.fill(Color::MAGENTA)
+			@screen.surface.draw(@root_element)
 			
-			@display.activate
-			@screen.draw(Vector[0, 0], @zoom)
+			# Draw screen to window
+			@window.surface.draw(@screen)
 		end
 		
-		@display.flip
+		@window.update
 	end
 	
 	def handle_events
-		@queue.each do |event|
-			if event.type == :close
+		Event.each do |event|
+			if event.type == :quit
 				stop
 				next
 			end

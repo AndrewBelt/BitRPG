@@ -6,7 +6,7 @@ class Element
 		@position = Vector[0, 0]
 	end
 	
-	def draw(offset)
+	def draw_to(dest, rect)
 	end
 	
 	# Returns whether the event was intercepted
@@ -20,10 +20,12 @@ end
 
 
 class Composite < Element
-	def draw(offset)
+	def draw_to(dest, rect)
+		rect_offset = rect.shift(@position)
+		
 		# Draw the elements in reverse
 		elements.reverse_each do |element|
-			element.draw(@position + offset)
+			dest.draw(element, rect_offset)
 		end
 	end
 	
@@ -101,9 +103,9 @@ class Label < Element
 end
 
 
-class Rectangle < Element
+class Panel < Element
 	attr_accessor :size
-	attr_accessor :color
+	attr_accessor :background_color
 	
 	# def draw(offset); end
 end

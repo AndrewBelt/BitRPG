@@ -1,6 +1,6 @@
 class Vector
-	attr_accessor :x
-	attr_accessor :y
+	attr_accessor :x # Number
+	attr_accessor :y # Number
 	
 	class << self
 		alias_method :[], :new
@@ -9,6 +9,10 @@ class Vector
 	def initialize(x=0, y=0)
 		@x = x
 		@y = y
+	end
+	
+	def ==(other)
+		@x == other.x and @y == other.y
 	end
 	
 	def +(other)
@@ -43,6 +47,7 @@ class Vector
 	
 	alias_method :div, :/
 	
+	# Rounds the vector coordinates to the nearest integer
 	def round
 		Vector[@x.round, @y.round]
 	end

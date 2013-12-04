@@ -1,11 +1,9 @@
 require 'yaml'
 require 'singleton'
-require 'core/gui'
-require 'game/state'
-require 'game/tileset'
-require 'game/entity'
-require 'game/camera'
-require 'game/hud'
+require 'bitrpg/game/state'
+require 'bitrpg/game/tileset'
+require 'bitrpg/game/entity'
+require 'bitrpg/game/camera'
 
 
 class MapScreen < Container
@@ -18,7 +16,7 @@ class MapScreen < Container
 		super
 		
 		@map = Map.instance
-		add @map
+		add(@map)
 	end
 end
 
@@ -38,8 +36,6 @@ class Map < Element
 	attr_reader :player # Character
 	attr_accessor :camera # Camera
 	
-	attr_accessor :background_color # Color
-	
 	def initialize
 		super
 		clear
@@ -49,7 +45,6 @@ class Map < Element
 		@map_tiles = []
 		@entities = []
 		@collisions = []
-		@background_color = Color.new
 	end
 	
 	def load(name)
@@ -179,27 +174,33 @@ class Map < Element
 	# Returns a sorted list of all Tiles, Entities, Characters, etc
 	# for rendering
 	def all_tiles
-		@entities.sort!
+		# @entities.sort!
 		
 		all_tiles = @map_tiles + @entities
-		all_tiles.sort
+		# all_tiles.sort
 	end
 	
-	def draw(offset)
-		screen_size = Game.instance.size
+	def draw_to(dest, rect)
 		center = @camera.center + Vector[0.5, 0.5]
-		camera_offset = @tile_size * center - screen_size / 2
+		camera_offset = @tile_size * center - rect.size / 2
+		camera_rect = rect.shift(camera_offset)
 		
 		all_tiles.each do |tile|
-			position = @tile_size * tile.position - camera_offset
-			position = position.round
+			rect_tile = Rect.new((@tile_size * tile.position -
+				camera_offset).round, tile.sprite.size)
 			
-			tile.draw(position)
+			# Don't draw entity if not in the bounding box of the screen
+			next unless camera_rect.overlaps?(rect_tile)
+			
+			tile.draw_to(dest, rect_tile)
 		end
 	end
 	
 	def handle_event(event)
-		if !Game.instance.script_running? and @player
+		# Disable controls if the script thread is active
+		return false if Game.instance.script_running?
+		
+		if @player
 			# Assume that the player's behavior is a PlayerBehavior
 			return true if @player.behavior.handle_event(event)
 		end
@@ -217,7 +218,7 @@ class Map < Element
 	def step
 		# Step the frames of the elements
 		@entities.each do |entity|
-			entity.step(self)
+			entity.step
 		end
 	end
 	
