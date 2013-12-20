@@ -70,35 +70,29 @@ end
 
 class Font
 	class << self
-		attr_accessor :default # Font
-		
-		def new(*args)
-			self.load(*args)
-		end
-		
-		# Loads a TTF font with the given font size
-		# To change the font size, you must load multiple fonts
-		# def load(filename, size); end
+		attr_accessor :default
 	end
-	
-	# def blit(color, x, y, text); end
 end
 
 
 class Label < Element
-	attr_accessor :text
+	attr_reader :text
 	attr_accessor :font
 	attr_accessor :color
 	
 	def initialize
 		super
-		@text = ''
+		@font = Font.default
 		@color = Color.new
 	end
 	
-	def draw(offset)
-		position = @position + offset
-		@font.blit(@color, position.x, position.y, @text)
+	def draw_to(dest, rect)
+		dest.blit(@surface, nil, @position, 1)
+	end
+	
+	def text=(text)
+		@surface = @font.render(text, @color)
+		@text = text
 	end
 end
 

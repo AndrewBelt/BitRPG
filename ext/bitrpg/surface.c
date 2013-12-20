@@ -4,7 +4,9 @@
 #include "bitrpg.h"
 
 
-static void
+VALUE cSurface;
+
+void
 surface_free(void *p)
 {
 	if (p)
@@ -62,7 +64,7 @@ surface_blit(int argc, VALUE *argv, VALUE self)
 		rb_raise(rb_eRuntimeError, "Source surface required");
 	}
 	
-	if (argc >= 2) // source_rect
+	if (argc >= 2 && argv[1] != Qnil) // source_rect
 	{
 		VALUE source_position = rb_funcall(argv[1], rb_intern("position"), 0);
 		VALUE source_size = rb_funcall(argv[1], rb_intern("size"), 0);
@@ -142,7 +144,7 @@ surface_size(VALUE self)
 void
 Init_bitrpg_surface()
 {
-	VALUE cSurface = rb_define_class("Surface", rb_cObject);
+	cSurface = rb_define_class("Surface", rb_cObject);
 	rb_define_singleton_method(cSurface, "new", surface_new, 1);
 	rb_define_singleton_method(cSurface, "load", surface_load, 1);
 	rb_define_method(cSurface, "blit", surface_blit, -1);

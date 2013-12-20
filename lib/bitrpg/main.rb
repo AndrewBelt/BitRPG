@@ -15,34 +15,12 @@ logo = %q{ ___ _ _   ___ ___  ___
 }
 puts logo
 
-# require 'benchmark'
-
-# Benchmark.bmbm do |bm|
-# 	n = 1000000
-	
-# 	bm.report('Vector') do
-# 		a = Vector[53, 42]
-# 		b = Vector[101, 102]
-# 		n.times do
-# 			c = a + b
-# 		end
-# 	end
-	
-# 	bm.report('Vector2') do
-# 		a = Vector2[53, 42]
-# 		b = Vector2[101, 102]
-# 		n.times do
-# 			c = a + b
-# 		end
-# 	end
-# end
-
-# exit
-
 # Eager-load the singleton classes
 GAME = Game.instance
-MAP_SCREEN = MapScreen.instance
 MAP = Map.instance
+
+MAP_SCREEN = Container.new
+MAP_SCREEN.add(MAP)
 
 # Initialize modules and classes
 GAME.from_yaml('./config.yml')

@@ -3,6 +3,8 @@
 #include "bitrpg.h"
 
 
+VALUE cWindow;
+
 static void
 window_free(void *p)
 {
@@ -54,7 +56,7 @@ window_update(VALUE self)
 void
 Init_bitrpg_window()
 {
-	VALUE cWindow = rb_define_class("Window", rb_cObject);
+	cWindow = rb_define_class("Window", rb_cObject);
 	rb_define_singleton_method(cWindow, "new", window_new, 2);
 	rb_define_method(cWindow, "destroy", window_destroy, 0);
 	rb_define_method(cWindow, "update", window_update, 0);

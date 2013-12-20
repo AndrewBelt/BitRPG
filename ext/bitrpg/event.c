@@ -3,10 +3,11 @@
 #include "bitrpg.h"
 
 
+VALUE cEvent;
+
 VALUE
 event_create(const SDL_Event *event)
 {
-	VALUE cEvent = rb_const_get(rb_cObject, rb_intern("Event"));
 	VALUE obj = rb_obj_alloc(cEvent);
 	
 	// Set event type
@@ -48,7 +49,7 @@ event_each(VALUE self)
 void
 Init_bitrpg_event()
 {
-	VALUE cEvent = rb_define_class("Event", rb_cObject);
+	cEvent = rb_define_class("Event", rb_cObject);
 	rb_define_singleton_method(cEvent, "each", event_each, 0);
 	
 	// event_types
