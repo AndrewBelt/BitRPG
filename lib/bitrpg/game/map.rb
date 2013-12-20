@@ -6,21 +6,6 @@ require 'bitrpg/game/entity'
 require 'bitrpg/game/camera'
 
 
-class MapScreen < Container
-	include Singleton
-	
-	attr_accessor :map # Map
-	attr_accessor :dialogue_panel # DialoguePanel
-	
-	def initialize
-		super
-		
-		@map = Map.instance
-		add(@map)
-	end
-end
-
-
 class Map < Element
 	include Singleton
 	
@@ -177,10 +162,10 @@ class Map < Element
 		# @entities.sort!
 		
 		all_tiles = @map_tiles + @entities
-		# all_tiles.sort
+		all_tiles
 	end
 	
-	def draw_to(dest, rect)
+	def draw_to(surface, rect)
 		camera_offset = (@tile_size * @camera.center -
 			(rect.size - @tile_size) / 2).round
 		camera_rect = Rect.new(camera_offset, rect.size)
@@ -192,7 +177,7 @@ class Map < Element
 			# Don't draw entity if not in the bounding box of the screen
 			next unless camera_rect.overlaps?(tile_rect)
 			
-			tile.draw_to(dest, tile_rect.position - camera_offset)
+			tile.blit(surface, tile_rect.position - camera_offset)
 		end
 	end
 	

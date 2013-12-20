@@ -5,28 +5,52 @@
 #include "bitrpg.h"
 
 
-SDL_Color
-color_to_pixel(VALUE color)
+SDL_Point
+to_point(VALUE vector)
 {
-	SDL_Color pixel;
-	pixel.r = NUM2INT(rb_funcall(color, rb_intern("r"), 0));
-	pixel.g = NUM2INT(rb_funcall(color, rb_intern("g"), 0));
-	pixel.b = NUM2INT(rb_funcall(color, rb_intern("b"), 0));
-	pixel.a = NUM2INT(rb_funcall(color, rb_intern("a"), 0));
-	return pixel;
+	SDL_Point point;
+	point.x = NUM2INT(rb_funcall(vector, rb_intern("x"), 0));
+	point.y = NUM2INT(rb_funcall(vector, rb_intern("y"), 0));
+	return point;
+}
+
+SDL_Rect
+to_rect(VALUE rect)
+{
+	SDL_Point position = to_point(rb_funcall(rect, rb_intern("position"), 0));
+	SDL_Point size = to_point(rb_funcall(rect, rb_intern("size"), 0));
+	
+	SDL_Rect rect2;
+	rect2.x = position.x;
+	rect2.y = position.y;
+	rect2.w = size.x;
+	rect2.h = size.y;
+	return rect2;
+}
+
+SDL_Color
+to_color(VALUE color)
+{
+	SDL_Color color2;
+	color2.r = NUM2INT(rb_funcall(color, rb_intern("r"), 0));
+	color2.g = NUM2INT(rb_funcall(color, rb_intern("g"), 0));
+	color2.b = NUM2INT(rb_funcall(color, rb_intern("b"), 0));
+	color2.a = NUM2INT(rb_funcall(color, rb_intern("a"), 0));
+	return color2;
 }
 
 Uint32
-color_to_rgba(VALUE color, const SDL_PixelFormat* format)
+to_pixel(VALUE color, const SDL_PixelFormat* format)
 {
-	SDL_Color pixel = color_to_pixel(color);
-	Uint32 rgba = SDL_MapRGBA(format, pixel.r, pixel.g, pixel.b, pixel.a);
-	return rgba;
+	SDL_Color color2 = to_color(color);
+	Uint32 pixel = SDL_MapRGBA(format, color2.r, color2.g, color2.b, color2.a);
+	return pixel;
 }
 
 void
 Init_bitrpg_native()
 {
+	// Initialize bitrpg modules
 	Init_bitrpg_window();
 	Init_bitrpg_surface();
 	Init_bitrpg_event();

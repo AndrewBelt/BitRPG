@@ -4,8 +4,10 @@
 #include <ruby.h>
 #include <SDL/SDL.h>
 
-SDL_Color color_to_pixel(VALUE color);
-Uint32 color_to_rgba(VALUE color, const SDL_PixelFormat* format);
+SDL_Point to_point(VALUE vector);
+SDL_Rect to_rect(VALUE rect);
+SDL_Color to_color(VALUE color);
+Uint32 to_pixel(VALUE color, const SDL_PixelFormat* format);
 
 void surface_free(void *p);
 
@@ -15,7 +17,7 @@ void Init_bitrpg_surface();
 void Init_bitrpg_event();
 void Init_bitrpg_gui();
 
-// Defined classes
+// Classes
 extern VALUE cWindow;
 extern VALUE cSurface;
 extern VALUE cEvent;

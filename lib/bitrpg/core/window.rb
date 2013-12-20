@@ -5,6 +5,4 @@ class Window
 	def size
 		surface.size
 	end
-	
-	alias_method :flip, :update
 end

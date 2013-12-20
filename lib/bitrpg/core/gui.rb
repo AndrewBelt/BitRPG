@@ -1,12 +1,12 @@
 # An object on the screen which receives events
 class Element
-	attr_accessor :position
+	attr_accessor :position # Vector
 	
 	def initialize
 		@position = Vector[0, 0]
 	end
 	
-	def draw_to(dest, rect)
+	def draw_to(surface, rect)
 	end
 	
 	# Returns whether the event was intercepted
@@ -51,7 +51,7 @@ end
 
 
 class Container < Composite
-	attr_accessor :elements
+	attr_accessor :elements # Array
 	
 	def initialize
 		super
@@ -70,36 +70,45 @@ end
 
 class Font
 	class << self
-		attr_accessor :default
+		attr_accessor :default # Font
 	end
 end
 
 
 class Label < Element
-	attr_reader :text
-	attr_accessor :font
-	attr_accessor :color
+	attr_accessor :text # String
+	attr_accessor :font # Font
+	attr_accessor :color # Color
+	attr_accessor :wrap_length # Integer
 	
 	def initialize
 		super
 		@font = Font.default
 		@color = Color.new
+		@wrap_length = 0
 	end
 	
-	def draw_to(dest, rect)
-		dest.blit(@surface, nil, @position, 1)
+	def draw_to(surface, rect)
+		@surface.blit(surface, nil, rect.position + @position, 1)
 	end
 	
-	def text=(text)
-		@surface = @font.render(text, @color)
-		@text = text
+	def update
+		@surface = @font.render(@text, @color, @wrap_length)
 	end
 end
 
 
 class Panel < Element
-	attr_accessor :size
-	attr_accessor :background_color
+	attr_accessor :size # Vector
+	attr_accessor :color # Color
 	
-	# def draw(offset); end
+	def initialize
+		super()
+		@color = Color::BLACK
+	end
+	
+	def draw_to(surface, rect)
+		panel_rect = Rect.new(@position + rect.position, @size)
+		surface.fill(panel_rect, @color)
+	end
 end

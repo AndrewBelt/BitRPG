@@ -31,13 +31,23 @@ font_new(VALUE self, VALUE filename, VALUE size)
 }
 
 VALUE
-font_render(VALUE self, VALUE text, VALUE color)
+font_render(VALUE self, VALUE text, VALUE color, VALUE wrap)
 {
 	TTF_Font *font = RDATA(self)->data;
 	const char *text_str = StringValueCStr(text);
-	SDL_Color fg = color_to_pixel(color);
+	SDL_Color fg = to_color(color);
+	int wrap_length = NUM2INT(wrap);
 	
-	SDL_Surface *surface = TTF_RenderText_Solid(font, text_str, fg);
+	SDL_Surface *surface;
+	
+	if (wrap_length <= 0)
+	{
+		surface = TTF_RenderText_Blended(font, text_str, fg);
+	}
+	else
+	{
+		surface = TTF_RenderText_Blended_Wrapped(font, text_str, fg, wrap_length);
+	}
 	
 	VALUE obj = rb_data_object_alloc(cSurface, surface, NULL, surface_free);
 	return obj;
@@ -47,5 +57,5 @@ void Init_bitrpg_gui()
 {
 	cFont = rb_define_class("Font", rb_cObject);
 	rb_define_singleton_method(cFont, "new", font_new, 2);
-	rb_define_method(cFont, "render", font_render, 2);
+	rb_define_method(cFont, "render", font_render, 3);
 }

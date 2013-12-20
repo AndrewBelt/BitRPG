@@ -7,13 +7,7 @@ $: << '../ext'
 require 'bitrpg'
 
 
-logo = %q{ ___ _ _   ___ ___  ___ 
-| _ |_) |_| _ \ _ \/ __|
-| _ \ |  _|   /  _/ (_ |
-|___/_|\__|_|_\_|  \___|
-
-}
-puts logo
+puts "bitrpg #{BITRPG_VERSION_STR}"
 
 # Eager-load the singleton classes
 GAME = Game.instance
@@ -39,12 +33,5 @@ repl_thread = Thread.new do
 	GAME.quit
 end
 
-# require 'ruby-prof'
-# RubyProf.start
-
 GAME.run
 repl_thread.kill if repl_thread.alive?
-
-# result = RubyProf.stop
-# printer = RubyProf::FlatPrinter.new(result)
-# printer.print(File.open('prof.txt', 'w'), {})

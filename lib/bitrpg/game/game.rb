@@ -95,16 +95,15 @@ class Game
 private
 	
 	def render
-		@window.surface.fill(Color::CYAN)
+		@window.surface.fill(nil, Color::BLACK)
 		
 		if @root_element
 			# Draw root_element to screen
-			@screen.surface.fill(Color::MAGENTA)
-			@root_element.draw_to(@screen.surface,
-				Rect.new(Vector[0, 0], @screen.surface.size))
+			@screen.surface.fill(nil, Color::BLACK)
+			@root_element.draw_to(@screen.surface, rect)
 			
 			# Draw screen to window
-			@window.surface.draw(@screen)
+			@screen.blit(@window.surface, Vector.new)
 		end
 		
 		@window.update

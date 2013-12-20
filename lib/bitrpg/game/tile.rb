@@ -15,8 +15,8 @@ class Tile
 		@position = Vector[x, y]
 	end
 	
-	def draw_to(dest, position)
-		@sprite.draw_to(dest, position)
+	def blit(surface, position)
+		@sprite.blit(surface, position)
 	end
 	
 	def <=>(other)

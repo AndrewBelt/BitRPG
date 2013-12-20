@@ -2,7 +2,7 @@ class Rect
 	attr_accessor :position # Vector
 	attr_accessor :size # Vector
 	
-	def initialize(position, size)
+	def initialize(position=Vector.new, size=Vector.new)
 		@position = position
 		@size = size
 	end
@@ -23,5 +23,11 @@ class Rect
 	# Returns a new Rect shifted by the Vector
 	def shift(vec)
 		Rect.new(@position + vec, @size)
+	end
+	
+	# Returns a new Rect which has been moved to the closest position
+	# inside the given Rect
+	def constrain(boundary)
+		# TODO
 	end
 end

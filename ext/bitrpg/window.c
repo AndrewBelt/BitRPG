@@ -18,11 +18,10 @@ VALUE
 window_new(VALUE self, VALUE title, VALUE size)
 {
 	const char *title_str = StringValueCStr(title);
-	int w = NUM2INT(rb_funcall(size, rb_intern("x"), 0));
-	int h = NUM2INT(rb_funcall(size, rb_intern("y"), 0));
+	SDL_Point size2 = to_point(size);
 	
 	SDL_Window *window = SDL_CreateWindow(title_str,
-		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, 0);
+		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, size2.x, size2.y, 0);
 	
 	if (!window)
 		rb_raise(rb_eRuntimeError, "Could not open window");

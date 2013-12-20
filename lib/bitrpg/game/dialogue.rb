@@ -1,5 +1,5 @@
-require 'core/gui'
-require 'game/character'
+require 'bitrpg/core/gui'
+require 'bitrpg/game/character'
 
 class DialoguePanel < Container
 	def initialize(name, text)
@@ -8,17 +8,17 @@ class DialoguePanel < Container
 		# TODO
 		# Add customization or at least remove the hardcoded stuff
 		
-		rectangle = Rectangle.new
-		rectangle.color = Color::WHITE
-		rectangle.size = Vector[Game.instance.size.x - 20, 40]
-		add rectangle
+		panel = Panel.new
+		panel.color = Color::WHITE
+		panel.size = Vector[Game.instance.rect.size.x - 20, 40]
+		add(panel)
 		
 		label = Label.new
-		label.font = Font.default
 		label.color = Color::BLACK
 		label.text = "#{name}: #{text}"
-		label.position = Vector[8, 6]
-		add label
+		label.wrap_length = panel.size.x
+		label.update
+		add(label)
 		
 		@mutex = Mutex.new
 		@resource = ConditionVariable.new
@@ -54,10 +54,11 @@ class Character
 		
 		# TODO
 		# Hard coded
-		dialogue_panel.position = Vector[10, Game.instance.size.y - 40 - 10]
+		dialogue_panel.position = Vector[10,
+			Game.instance.rect.size.y - 40 - 10]
 		
-		MapScreen.instance.add(dialogue_panel)
+		MAP_SCREEN.add(dialogue_panel)
 		dialogue_panel.wait
-		MapScreen.instance.elements.delete(dialogue_panel)
+		MAP_SCREEN.remove(dialogue_panel)
 	end
 end
