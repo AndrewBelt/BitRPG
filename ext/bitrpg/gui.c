@@ -36,16 +36,15 @@ font_render(VALUE self, VALUE text, VALUE color, VALUE wrap)
 	TTF_Font *font = RDATA(self)->data;
 	const char *text_str = StringValueCStr(text);
 	SDL_Color fg = to_color(color);
-	int wrap_length = NUM2INT(wrap);
-	
 	SDL_Surface *surface;
 	
-	if (wrap_length <= 0)
+	if (wrap == Qnil)
 	{
 		surface = TTF_RenderText_Blended(font, text_str, fg);
 	}
 	else
 	{
+		int wrap_length = NUM2INT(wrap);
 		surface = TTF_RenderText_Blended_Wrapped(font, text_str, fg, wrap_length);
 	}
 	

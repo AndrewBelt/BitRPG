@@ -82,10 +82,10 @@ class Label < Element
 	attr_accessor :wrap_length # Integer
 	
 	def initialize
-		super
+		super()
+		@text = '.'
 		@font = Font.default
 		@color = Color.new
-		@wrap_length = 0
 	end
 	
 	def draw_to(surface, rect)

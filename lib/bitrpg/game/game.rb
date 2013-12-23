@@ -111,7 +111,10 @@ private
 	
 	def handle_events
 		Event.each do |event|
-			if event.type == :quit
+			p event
+			
+			case event.type
+			when :quit
 				stop
 				next
 			end

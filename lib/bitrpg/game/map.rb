@@ -166,9 +166,13 @@ class Map < Element
 	end
 	
 	def draw_to(surface, rect)
+		# Set up camera viewport
 		camera_offset = (@tile_size * @camera.center -
 			(rect.size - @tile_size) / 2).round
 		camera_rect = Rect.new(camera_offset, rect.size)
+		
+		boundary_rect = Rect.new(Vector[0, 0], @tile_size * @map_size)
+		camera_rect = camera_rect.constrain(boundary_rect)
 		
 		all_tiles.each do |tile|
 			tile_rect = Rect.new((@tile_size * tile.position).round,
@@ -177,7 +181,7 @@ class Map < Element
 			# Don't draw entity if not in the bounding box of the screen
 			next unless camera_rect.overlaps?(tile_rect)
 			
-			tile.blit(surface, tile_rect.position - camera_offset)
+			tile.blit(surface, tile_rect.position - camera_rect.position)
 		end
 	end
 	

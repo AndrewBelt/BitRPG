@@ -21,6 +21,7 @@ void Init_bitrpg_gui();
 extern VALUE cWindow;
 extern VALUE cSurface;
 extern VALUE cEvent;
+extern VALUE mKeyboard;
 extern VALUE cFont;
 
 #endif

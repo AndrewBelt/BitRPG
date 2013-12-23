@@ -11,6 +11,8 @@ class Vector
 	def initialize(x=0, y=0)
 		@x = x
 		@y = y
+		# Ensure immutability
+		freeze
 	end
 	
 	def ==(other)
@@ -60,12 +62,5 @@ class Vector
 	
 	def inspect
 		"Vector[#{@x}, #{@y}]"
-	end
-end
-
-
-class Vector2
-	class << self
-		alias_method :[], :new
 	end
 end
