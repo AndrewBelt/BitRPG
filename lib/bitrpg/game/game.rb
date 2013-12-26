@@ -1,8 +1,10 @@
 require 'yaml'
 require 'singleton'
 
-class Game
-	include Singleton
+module Game
+end
+
+class << Game
 	attr_accessor :framerate # Number
 	attr_reader :last_framerate # Number
 	attr_accessor :root_element # Element
@@ -21,6 +23,8 @@ class Game
 		zoom = window_conf.fetch('zoom', 1)
 		@framerate = window_conf.fetch('framerate', 0)
 		title = window_conf.fetch('title', '')
+		
+		@debug = data['debug']
 		
 		window_size = screen_size * zoom
 		@window = Window.new(title, window_size)
@@ -80,7 +84,7 @@ class Game
 		@script_thread = Thread.new do
 			begin
 				yield
-			rescue => e
+			rescue Exception => e
 				puts e
 				puts e.backtrace
 				stop
@@ -90,6 +94,10 @@ class Game
 	
 	def script_running?
 		@script_thread and @script_thread.alive?
+	end
+	
+	def debug?
+		!!@debug
 	end
 	
 private
@@ -111,12 +119,10 @@ private
 	
 	def handle_events
 		Event.each do |event|
-			p event
-			
 			case event.type
 			when :quit
 				stop
-				next
+				return true
 			end
 			
 			if @root_element

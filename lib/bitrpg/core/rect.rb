@@ -29,18 +29,8 @@ class Rect
 	# Returns a new Rect which has been moved to the closest position
 	# inside the given Rect
 	def constrain(boundary)
-		rect = clone
-		
-		if rect.position.x < boundary.position.x
-			rect.position = Vector[boundary.position.x, rect.position.y]
-		end
-		if rect.position.y < boundary.position.y
-			rect.position = Vector[rect.position.x, boundary.position.y]
-		end
-		
-		# TODO
-		# Too lazy to make complete this
-		
-		rect
+		position = @position.constrain(boundary.position,
+			boundary.size - @size)
+		Rect.new(position, @size)
 	end
 end

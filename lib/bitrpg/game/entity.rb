@@ -10,7 +10,7 @@ class Entity < Tile
 		super()
 		
 		@type = self.class::Type.find(name)
-		raise "Could not find type '#{name}'" unless @type
+		raise "Could not find #{self.class} type '#{name}'" unless @type
 		@offset = Vector[0, 0]
 		
 		self.animation = 'default'
@@ -26,7 +26,7 @@ class Entity < Tile
 	end
 	
 	def action?
-		!@action.nil?
+		!!@action
 	end
 	
 	# Position methods
@@ -48,7 +48,7 @@ class Entity < Tile
 	end
 	
 	def collides?
-		@type.collides
+		!!@type.collides
 	end
 	
 	# Animations
@@ -139,15 +139,24 @@ class Entity::Type
 	
 	def initialize(data, tileset)
 		@name = data.fetch('name', '')
-		
-		size = Vector[*data.fetch('size', [1, 1])]
-		tile_size = tileset.tile_size
-		
 		@animations = {}
-		data['animations'].each do |animation_name, frames|
-			@animations[animation_name] = frames.collect do |coords_ary|
-				coords = Vector[*coords_ary]
-				tileset.at(coords, size)
+		sprite_size = Vector[*data.fetch('size', [1, 1])]
+		
+		# 'default' animation
+		tile = data['tile']
+		if tile
+			coords = Vector[*tile]
+			@animations['default'] = [tileset.at(coords, sprite_size)]
+		end
+		
+		# Other animations
+		animations_data = data['animations']
+		if animations_data
+			animations_data.each do |animation_name, frames|
+				@animations[animation_name] = frames.collect do |coords_ary|
+					coords = Vector[*coords_ary]
+					tileset.at(coords, sprite_size)
+				end
 			end
 		end
 		

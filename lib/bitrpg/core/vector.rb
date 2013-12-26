@@ -60,7 +60,27 @@ class Vector
 		Vector[@x.round, @y.round]
 	end
 	
+	def constrain(top_left, bottom_right)
+		x = @x.constrain(top_left.x, bottom_right.x)
+		y = @y.constrain(top_left.y, bottom_right.y)
+		Vector[x, y]
+	end
+	
 	def inspect
 		"Vector[#{@x}, #{@y}]"
+	end
+end
+
+
+class Numeric
+	# Clips the numberic to the given limits
+	def constrain(low, high)
+		if self < low
+			low
+		elsif self > high
+			high
+		else
+			self
+		end
 	end
 end

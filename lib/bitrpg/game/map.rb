@@ -10,7 +10,7 @@ class Map < Element
 	include Singleton
 	
 	# The number of map tiles composing the map
-	attr_reader :map_size # Vector
+	attr_reader :size # Vector
 	
 	# The pixel dimensions of each tile
 	attr_reader :tile_size # Vector
@@ -45,7 +45,7 @@ class Map < Element
 	def from_data(data)
 		clear
 		
-		@map_size = Vector[*data.fetch('map_size')]
+		@size = Vector[*data.fetch('map_size')]
 		@tile_size = Vector[*data.fetch('tile_size')]
 		
 		# Load tilesets
@@ -96,7 +96,7 @@ class Map < Element
 				# Create and add the tile
 				tile = Tile.new(sprite)
 				tile.layer = layer
-				position_y, position_x = index.divmod(@map_size.x)
+				position_y, position_x = index.divmod(@size.x)
 				tile.position = Vector[position_x, position_y]
 				@map_tiles << tile
 			end
@@ -120,11 +120,11 @@ class Map < Element
 	
 	def collides?(position)
 		# Check boundary collision
-		return true unless (0...@map_size.x) === position.x and
-			(0...@map_size.y) === position.y
+		return true unless (0...@size.x) === position.x and
+			(0...@size.y) === position.y
 		
 		# Check tile collision (using special collision layer)
-		index = position.x + @map_size.x * position.y
+		index = position.x + @size.x * position.y
 		return true if @collisions[index]
 		
 		# Check entity collision
@@ -171,7 +171,7 @@ class Map < Element
 			(rect.size - @tile_size) / 2).round
 		camera_rect = Rect.new(camera_offset, rect.size)
 		
-		boundary_rect = Rect.new(Vector[0, 0], @tile_size * @map_size)
+		boundary_rect = Rect.new(Vector[0, 0], @tile_size * @size)
 		camera_rect = camera_rect.constrain(boundary_rect)
 		
 		all_tiles.each do |tile|
@@ -187,7 +187,7 @@ class Map < Element
 	
 	def handle_event(event)
 		# Disable controls if the script thread is active
-		return false if Game.instance.script_running?
+		return false if Game.script_running?
 		
 		if @player
 			# Assume that the player's behavior is a PlayerBehavior
@@ -219,7 +219,7 @@ private
 			face_entity = pick(face_position).find {|e| e.action? }
 			return unless face_entity
 			
-			Game.instance.run_script do
+			Game.run_script do
 				face_entity.action
 			end
 		end

@@ -10,14 +10,13 @@ require 'bitrpg'
 puts "bitrpg #{BITRPG_VERSION_STR}"
 
 # Eager-load the singleton classes
-GAME = Game.instance
 MAP = Map.instance
 
 MAP_SCREEN = Container.new
 MAP_SCREEN.add(MAP)
 
 # Initialize modules and classes
-GAME.from_yaml('./config.yml')
+Game.from_yaml('./config.yml')
 Tileset.from_yaml('./tilesets.yml')
 
 # TODO
@@ -30,8 +29,8 @@ repl_thread = Thread.new do
 	# Pause for suspense
 	sleep 0.1
 	IRB.start_mini
-	GAME.quit
+	Game.quit
 end
 
-GAME.run
+Game.run
 repl_thread.kill if repl_thread.alive?
