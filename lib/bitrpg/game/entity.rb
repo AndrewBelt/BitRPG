@@ -165,4 +165,3 @@ class Entity::Type
 		@collides = data.fetch('collides', false)
 	end
 end
-

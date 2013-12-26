@@ -55,6 +55,19 @@ event_each(VALUE self)
 	return Qnil;
 }
 
+VALUE
+keyboard_held(VALUE self, VALUE key_sym)
+{
+	VALUE scan_codes = rb_iv_get(mKeyboard, "@scan_codes");
+	VALUE scan_code = rb_funcall(scan_codes, rb_intern("key"), 1, key_sym);
+	
+	if (scan_code == Qnil)
+		return Qfalse;
+	
+	const Uint8 *state = SDL_GetKeyboardState(NULL);
+	return state[FIX2INT(scan_code)] ? Qtrue : Qfalse;
+}
+
 void
 Init_bitrpg_event()
 {
@@ -77,6 +90,8 @@ Init_bitrpg_event()
 	// Keyboard
 	
 	mKeyboard = rb_define_module("Keyboard");
+	
+	rb_define_singleton_method(mKeyboard, "held?", keyboard_held, 1);
 	
 	VALUE scan_codes = rb_hash_new();
 	#define SCAN_CODE(scan_code, symbol) \

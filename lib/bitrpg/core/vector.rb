@@ -19,6 +19,12 @@ class Vector
 		@x == other.x and @y == other.y
 	end
 	
+	def <=>(other)
+		# We only care about the order in the y direction.
+		# Vectors with higher y values are greater.
+		@y <=> other.y
+	end
+	
 	def +(other)
 		Vector[@x + other.x, @y + other.y]
 	end
@@ -55,9 +61,13 @@ class Vector
 	
 	alias_method :div, :/
 	
+	def map
+		Vector[yield(@x), yield(@y)]
+	end
+	
 	# Rounds the vector coordinates to the nearest integer
 	def round
-		Vector[@x.round, @y.round]
+		map(&:round)
 	end
 	
 	def constrain(top_left, bottom_right)

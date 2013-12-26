@@ -120,8 +120,7 @@ class Map < Element
 	
 	def collides?(position)
 		# Check boundary collision
-		return true unless (0...@size.x) === position.x and
-			(0...@size.y) === position.y
+		return true unless Rect.new(Vector[0, 0], @size).include?(position)
 		
 		# Check tile collision (using special collision layer)
 		index = position.x + @size.x * position.y

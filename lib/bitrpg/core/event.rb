@@ -11,11 +11,6 @@ end
 
 module Keyboard
 	class << self
-		# def update_held; end
-		attr_reader :held
-		
-		def held?(key)
-			held.include?(key)
-		end
+		# def held; end
 	end
 end

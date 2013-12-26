@@ -20,6 +20,8 @@ class Tile
 	end
 	
 	def <=>(other)
-		@layer <=> other.layer
+		cmp = @layer <=> other.layer
+		return cmp if cmp != 0
+		@position <=> other.position
 	end
 end
