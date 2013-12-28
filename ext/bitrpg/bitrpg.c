@@ -6,7 +6,7 @@
 
 
 SDL_Point
-to_point(VALUE vector)
+from_vector(VALUE vector)
 {
 	SDL_Point point;
 	point.x = NUM2INT(rb_funcall(vector, rb_intern("x"), 0));
@@ -14,11 +14,19 @@ to_point(VALUE vector)
 	return point;
 }
 
-SDL_Rect
-to_rect(VALUE rect)
+VALUE
+to_vector(SDL_Point point)
 {
-	SDL_Point position = to_point(rb_funcall(rect, rb_intern("position"), 0));
-	SDL_Point size = to_point(rb_funcall(rect, rb_intern("size"), 0));
+	VALUE cVector = rb_const_get(rb_cObject, rb_intern("Vector"));
+	return rb_funcall(cVector, rb_intern("new"), 2,
+		INT2NUM(point.x), INT2NUM(point.y));
+}
+
+SDL_Rect
+from_rect(VALUE rect)
+{
+	SDL_Point position = from_vector(rb_funcall(rect, rb_intern("position"), 0));
+	SDL_Point size = from_vector(rb_funcall(rect, rb_intern("size"), 0));
 	
 	SDL_Rect rect2;
 	rect2.x = position.x;
@@ -51,8 +59,7 @@ void
 Init_bitrpg_native()
 {
 	// Initialize bitrpg modules
-	Init_bitrpg_window();
-	Init_bitrpg_surface();
+	Init_bitrpg_graphics();
 	Init_bitrpg_event();
 	Init_bitrpg_gui();
 	

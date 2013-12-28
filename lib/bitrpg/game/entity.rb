@@ -102,8 +102,8 @@ class Entity < Tile
 		end
 	end
 	
-	def blit(surface, position)
-		super(surface, position - @type.origin)
+	def draw(renderer, position)
+		super(renderer, position - @type.origin)
 	end
 	
 	def inspect

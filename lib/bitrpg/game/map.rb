@@ -164,7 +164,7 @@ class Map < Element
 		all_tiles
 	end
 	
-	def draw_to(surface, rect)
+	def draw(renderer, rect)
 		# Set up camera viewport
 		camera_offset = (@tile_size * @camera.center -
 			(rect.size - @tile_size) / 2).round
@@ -180,7 +180,7 @@ class Map < Element
 			# Don't draw entity if not in the bounding box of the screen
 			next unless camera_rect.overlaps?(tile_rect)
 			
-			tile.blit(surface, tile_rect.position - camera_rect.position)
+			tile.draw(renderer, tile_rect.position - camera_rect.position)
 		end
 	end
 	

@@ -1,21 +1,49 @@
-require 'core/vector'
+
+class Window
+	attr_reader :renderer
+end
 
 
-class Bitmap
-	# def self.new(size); end
+class Renderer
+	alias_method :flip, :present
+end
+
+
+class Texture
+end
+
+
+class Surface
+	class << self
+		# def load(filename); end
+	end
+end
+
+
+# A rectangular portion of a Surface, and a lazy Texture
+class Sprite
+	attr_reader :surface # Surface
+	attr_accessor :clip_rect # Rect
 	
-	# Loads from a file while bypassing the cache
-	# def self.load(filename); end
+	attr_reader :texture # Texture
 	
-	# Enables the bitmap for further drawing
-	# def activate; end
+	# The sprite represents the entire Surface by default
+	def initialize(surface)
+		@surface = surface
+		@clip_rect = Rect.new(Vector[0, 0], surface.size)
+	end
 	
-	# Clears the bitmap to black
-	# def clear; end
+	def draw(renderer, position=Vector.new)
+		# Lazy create the Texture
+		if @surface
+			@texture = Texture.new(renderer, @surface, @clip_rect)
+			@surface = nil
+		end
+		
+		renderer.copy(@texture, position)
+	end
 	
-	# Returns an array with [width, height]
-	# def size; end
-	
-	# Draws the bitmap to the currently activated surface
-	# def blit(sx, sy, sw, sh, x, y, zoom); end
+	def size
+		@clip_rect.size
+	end
 end

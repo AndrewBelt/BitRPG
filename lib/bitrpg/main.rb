@@ -21,7 +21,7 @@ Tileset.from_yaml('./tilesets.yml')
 
 # TODO
 # Figure out a better font management scheme
-# Font.default = Font.new('fonts/visitor1.ttf', 10)
+Font.default = Font.new('fonts/visitor1.ttf', 10)
 
 # The REPL thread
 require 'bitrpg/core/irb'

@@ -1,12 +1,11 @@
 require 'yaml'
-require 'bitrpg/core/sprite'
 require 'bitrpg/game/entity'
 require 'bitrpg/game/character'
 
 class Tileset
 	include Enumerable
 	
-	attr_reader :surface # Surface
+	attr_reader :texture # Texture
 	attr_reader :tile_size # Vector
 	attr_reader :margin # Vector
 	attr_reader :spacing # Vector

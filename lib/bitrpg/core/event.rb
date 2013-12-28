@@ -11,6 +11,6 @@ end
 
 module Keyboard
 	class << self
-		# def held; end
+		# def held?(key); end
 	end
 end

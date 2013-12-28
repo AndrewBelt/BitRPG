@@ -6,7 +6,8 @@ class Element
 		@position = Vector[0, 0]
 	end
 	
-	def draw_to(surface, rect)
+	# Must be called by the main thread for Mac OS X compatability
+	def draw(renderer, rect)
 	end
 	
 	# Returns whether the event was intercepted
@@ -14,18 +15,20 @@ class Element
 		false
 	end
 	
+	# Prepare element for rendering
+	# Must be called by the main thread for Mac OS X compatability
 	def step
 	end
 end
 
 
 class Composite < Element
-	def draw_to(dest, rect)
+	def draw(renderer, rect)
 		offset_rect = rect.shift(@position)
 		
 		# Draw the elements in reverse
 		elements.reverse_each do |element|
-			dest.draw(element, offset_rect)
+			element.draw(renderer, offset_rect)
 		end
 	end
 	
@@ -59,6 +62,7 @@ class Container < Composite
 	end
 	
 	def add(element)
+		raise "Cannot add Container to itself" if element == self
 		@elements.unshift(element)
 	end
 	
@@ -68,32 +72,19 @@ class Container < Composite
 end
 
 
-class Font
-	class << self
-		attr_accessor :default # Font
+class SpriteElement < Element
+	def draw(renderer, rect)
+		# Fail silently if texture does not exist
+		if @sprite
+			@sprite.draw(renderer, @position + rect.position)
+		end
 	end
 end
 
 
-class Label < Element
-	attr_accessor :text # String
-	attr_accessor :font # Font
-	attr_accessor :color # Color
-	attr_accessor :wrap_length # Integer
-	
-	def initialize
-		super()
-		@text = '.'
-		@font = Font.default
-		@color = Color.new
-	end
-	
-	def draw_to(surface, rect)
-		@surface.blit(surface, nil, rect.position + @position, 1)
-	end
-	
-	def update
-		@surface = @font.render(@text, @color, @wrap_length)
+class Font
+	class << self
+		attr_accessor :default # Font
 	end
 end
 
@@ -107,8 +98,62 @@ class Panel < Element
 		@color = Color::BLACK
 	end
 	
-	def draw_to(surface, rect)
+	def draw(renderer, rect)
 		panel_rect = Rect.new(@position + rect.position, @size)
-		surface.fill(panel_rect, @color)
+		renderer.draw_color = @color
+		renderer.draw_rect(panel_rect)
+	end
+end
+
+
+class Image < SpriteElement
+	def initialize(filename)
+		super()
+		surface = Surface.load(filename)
+		@sprite = Sprite.new(surface)
+	end
+end
+
+
+class Label < SpriteElement
+	attr_reader :text # String
+	attr_reader :font # Font
+	attr_reader :color # Color
+	attr_reader :wrap_length # Integer
+	
+	def initialize
+		super()
+		@text = '.'
+		@font = Font.default
+		@color = Color.new
+		@dirty = true
+	end
+	
+	def text=(text)
+		@text = text
+		@dirty = true
+	end
+	
+	def font=(font)
+		@font = font
+		@dirty = true
+	end
+	
+	def color=(color)
+		@color = color
+		@dirty = true
+	end
+	
+	def wrap_length=(wrap_length)
+		@wrap_length = wrap_length
+		@dirty = true
+	end
+	
+	def step
+		if @dirty
+			surface = @font.render(@text, @color, @wrap_length)
+			@sprite = Sprite.new(surface)
+			@dirty = false
+		end
 	end
 end

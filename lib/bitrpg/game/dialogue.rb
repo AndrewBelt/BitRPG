@@ -10,14 +10,13 @@ class DialoguePanel < Container
 		
 		panel = Panel.new
 		panel.color = Color::WHITE
-		panel.size = Vector[Game.rect.size.x - 20, 40]
+		panel.size = Vector[220, 40]
 		add(panel)
 		
 		label = Label.new
 		label.color = Color::BLACK
 		label.text = "#{name}: #{text}"
 		label.wrap_length = panel.size.x
-		label.update
 		add(label)
 		
 		@mutex = Mutex.new
@@ -54,8 +53,7 @@ class Character
 		
 		# TODO
 		# Hard coded
-		dialogue_panel.position = Vector[10,
-			Game.rect.size.y - 40 - 10]
+		dialogue_panel.position = Vector[10, 130]
 		
 		MAP_SCREEN.add(dialogue_panel)
 		dialogue_panel.wait

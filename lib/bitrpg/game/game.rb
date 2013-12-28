@@ -18,31 +18,28 @@ class << Game
 	
 	def from_data(data)
 		window_conf = data.fetch('window')
-		screen_size = Vector[window_conf.fetch('width'),
+		@screen_size = Vector[window_conf.fetch('width'),
 			window_conf.fetch('height')]
-		zoom = window_conf.fetch('zoom', 1)
+		@zoom = window_conf.fetch('zoom', 1)
 		@framerate = window_conf.fetch('framerate', 0)
 		title = window_conf.fetch('title', '')
 		
-		@debug = data['debug']
+		@debug = !!data['debug']
 		
-		window_size = screen_size * zoom
+		window_size = @screen_size * @zoom
 		@window = Window.new(title, window_size)
-		
-		screen_surface = Surface.new(screen_size)
-		@screen = Sprite.new(screen_surface)
-		@screen.zoom = zoom
+		@window.renderer.zoom = @zoom
 	end
 	
-	def rect
-		@screen.clip_rect
+	def renderer
+		@window.renderer
 	end
 	
 	def run
 		@running = true
 		
 		run_script do
-			Kernel::load './scripts/start.rb'
+			Kernel::load('./scripts/start.rb')
 		end
 		
 		@start_time = Time.now
@@ -54,9 +51,7 @@ class << Game
 			limit_framerate
 		end
 		
-		# Cleanup
-		@window.destroy
-		@window = nil
+		# Done
 	end
 	
 	def stop
@@ -97,24 +92,23 @@ class << Game
 	end
 	
 	def debug?
-		!!@debug
+		@debug
 	end
 	
 private
 	
 	def render
-		@window.surface.fill(nil, Color::BLACK)
+		renderer = renderer()
+		renderer.draw_color = Color::BLACK
+		renderer.clear
 		
 		if @root_element
 			# Draw root_element to screen
-			@screen.surface.fill(nil, Color::BLACK)
-			@root_element.draw_to(@screen.surface, rect)
-			
-			# Draw screen to window
-			@screen.blit(@window.surface, Vector.new)
+			screen_rect = Rect.new(Vector[0, 0], @screen_size)
+			@root_element.draw(renderer, screen_rect)
 		end
 		
-		@window.update
+		renderer.present
 	end
 	
 	def handle_events
@@ -133,7 +127,9 @@ private
 	
 	# The "physics" method. Changes the state of the game elements
 	def step
-		@root_element.step if @root_element
+		if @root_element
+			@root_element.step
+		end
 	end
 	
 	def limit_framerate
