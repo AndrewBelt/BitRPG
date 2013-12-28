@@ -2,21 +2,24 @@ require 'bitrpg/core/gui'
 require 'bitrpg/game/character'
 
 class DialoguePanel < Container
-	def initialize(name, text)
-		super()
+	INSET = 2
+	
+	def initialize(character_type, text, rect)
+		super(rect)
 		
-		# TODO
-		# Add customization or at least remove the hardcoded stuff
+		inside_rect = Rect.new(Vector[0, 0], @rect.size)
 		
-		panel = Panel.new
-		panel.color = Color::WHITE
-		panel.size = Vector[220, 40]
-		add(panel)
+		box1 = Box.new(inside_rect)
+		box1.color = Color::WHITE
+		add(box1)
 		
-		label = Label.new
-		label.color = Color::BLACK
-		label.text = "#{name}: #{text}"
-		label.wrap_length = panel.size.x
+		box2 = Box.new(inside_rect.contract(Vector[4, 2]))
+		box2.color = Color::BLACK
+		add(box2)
+		
+		label = Label.new(inside_rect.contract(Vector[8, 4]))
+		label.color = Color::WHITE
+		label.text = "#{character_type.name}: #{text}"
 		add(label)
 		
 		@mutex = Mutex.new
@@ -49,11 +52,13 @@ end
 
 class Character
 	def say(text)
-		dialogue_panel = DialoguePanel.new(@type.name, text)
+		margin = 10
+		height = 46
 		
-		# TODO
-		# Hard coded
-		dialogue_panel.position = Vector[10, 130]
+		dialogue_rect = Rect.new(
+			Vector[margin, MAP_SCREEN.rect.size.y - margin - height],
+			Vector[MAP_SCREEN.rect.size.x - 2 * margin, height])
+		dialogue_panel = DialoguePanel.new(@type, text, dialogue_rect)
 		
 		MAP_SCREEN.add(dialogue_panel)
 		dialogue_panel.wait

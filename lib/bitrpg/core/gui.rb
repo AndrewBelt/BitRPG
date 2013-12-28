@@ -1,13 +1,13 @@
 # An object on the screen which receives events
 class Element
-	attr_accessor :position # Vector
+	attr_accessor :rect # Rect
 	
-	def initialize
-		@position = Vector[0, 0]
+	def initialize(rect=Rect.new)
+		@rect = rect
 	end
 	
 	# Must be called by the main thread for Mac OS X compatability
-	def draw(renderer, rect)
+	def draw(renderer, position)
 	end
 	
 	# Returns whether the event was intercepted
@@ -23,12 +23,12 @@ end
 
 
 class Composite < Element
-	def draw(renderer, rect)
-		offset_rect = rect.shift(@position)
+	def draw(renderer, position)
+		offset = @rect.position + position
 		
 		# Draw the elements in reverse
 		elements.reverse_each do |element|
-			element.draw(renderer, offset_rect)
+			element.draw(renderer, offset)
 		end
 	end
 	
@@ -56,7 +56,7 @@ end
 class Container < Composite
 	attr_accessor :elements # Array
 	
-	def initialize
+	def initialize(*args)
 		super
 		@elements = []
 	end
@@ -73,10 +73,10 @@ end
 
 
 class SpriteElement < Element
-	def draw(renderer, rect)
+	def draw(renderer, position)
 		# Fail silently if texture does not exist
 		if @sprite
-			@sprite.draw(renderer, @position + rect.position)
+			@sprite.draw(renderer, @rect.position + position)
 		end
 	end
 end
@@ -89,19 +89,18 @@ class Font
 end
 
 
-class Panel < Element
-	attr_accessor :size # Vector
+class Box < Element
 	attr_accessor :color # Color
 	
-	def initialize
-		super()
-		@color = Color::BLACK
+	def initialize(*args)
+		super(*args)
+		@color = Color.new
 	end
 	
-	def draw(renderer, rect)
-		panel_rect = Rect.new(@position + rect.position, @size)
+	def draw(renderer, position)
+		offset_rect = @rect.shift(position)
 		renderer.draw_color = @color
-		renderer.draw_rect(panel_rect)
+		renderer.draw_rect(offset_rect)
 	end
 end
 
@@ -119,10 +118,9 @@ class Label < SpriteElement
 	attr_reader :text # String
 	attr_reader :font # Font
 	attr_reader :color # Color
-	attr_reader :wrap_length # Integer
 	
-	def initialize
-		super()
+	def initialize(*args)
+		super(*args)
 		@text = '.'
 		@font = Font.default
 		@color = Color.new
@@ -144,14 +142,9 @@ class Label < SpriteElement
 		@dirty = true
 	end
 	
-	def wrap_length=(wrap_length)
-		@wrap_length = wrap_length
-		@dirty = true
-	end
-	
 	def step
 		if @dirty
-			surface = @font.render(@text, @color, @wrap_length)
+			surface = @font.render(@text, @color, @rect.size.x)
 			@sprite = Sprite.new(surface)
 			@dirty = false
 		end

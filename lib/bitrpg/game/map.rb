@@ -1,4 +1,3 @@
-require 'yaml'
 require 'singleton'
 require 'bitrpg/game/state'
 require 'bitrpg/game/tileset'
@@ -10,7 +9,7 @@ class Map < Element
 	include Singleton
 	
 	# The number of map tiles composing the map
-	attr_reader :size # Vector
+	attr_reader :map_size # Vector
 	
 	# The pixel dimensions of each tile
 	attr_reader :tile_size # Vector
@@ -33,19 +32,86 @@ class Map < Element
 	end
 	
 	def load(name)
-		path = File.realpath("#{name}.yml", 'maps')
-		from_yaml(path)
+		# TODO
+		# If no extension is given, scan for yaml first, then TMX
+		
+		path = File.realpath(name, 'maps')
+		# load_yaml(path)
+		load_tmx(path)
 	end
 	
-	def from_yaml(path)
+	def load_yaml(path)
+		require 'yaml'
+		
 		data = YAML.load_file(path)
-		from_data(data)
+		load_hash(data)
 	end
 	
-	def from_data(data)
+	def load_tmx(path)
+		require 'rexml/document'
+		require 'base64'
+		require 'zlib'
+		
+		source = File.read(path)
+		document = REXML::Document.new(source)
+		
+		map_hash = {}
+		
+		document.elements.each('/map') do |map_el|
+			orientation = map_el.attributes['orientation']
+			raise "Map must be orthogonal" unless orientation == 'orthogonal'
+			
+			map_width = map_el.attributes['width'].to_i
+			map_height = map_el.attributes['height'].to_i
+			map_hash['map_size'] = [map_width, map_height]
+			
+			tile_width = map_el.attributes['tilewidth'].to_i
+			tile_height = map_el.attributes['tileheight'].to_i
+			map_hash['tile_size'] = [tile_width, tile_height]
+			
+			layers_hash = {}
+			map_el.elements.each('layer') do |layer_el|
+				name = layer_el.attributes['name']
+				width = layer_el.attributes['width'].to_i
+				height = layer_el.attributes['height'].to_i
+				
+				layer_el.elements.each('data') do |data_el|
+					data_text = data_el.text.strip
+					
+					if data_el.attributes['encoding'] == 'base64'
+						data_text = Base64.decode64(data_text)
+					end
+					
+					if data_el.attributes['compression'] == 'zlib'
+						data_text = Zlib::Inflate.inflate(data_text)
+					end
+					
+					data_a = data_text.unpack('L<*')
+					layers_hash[name] = data_a
+					break
+				end
+			end
+			map_hash['layers'] = layers_hash
+			
+			tilesets_hash = {}
+			map_el.elements.each('tileset') do |tileset_el|
+				name = tileset_el.attributes['name']
+				firstgid = tileset_el.attributes['firstgid'].to_i
+				tilesets_hash[firstgid] = name
+			end
+			map_hash['tilesets'] = tilesets_hash
+			
+			# Support only one /map element
+			break
+		end
+		
+		load_hash(map_hash)
+	end
+	
+	def load_hash(data)
 		clear
 		
-		@size = Vector[*data.fetch('map_size')]
+		@map_size = Vector[*data.fetch('map_size')]
 		@tile_size = Vector[*data.fetch('tile_size')]
 		
 		# Load tilesets
@@ -96,15 +162,13 @@ class Map < Element
 				# Create and add the tile
 				tile = Tile.new(sprite)
 				tile.layer = layer
-				position_y, position_x = index.divmod(@size.x)
+				position_y, position_x = index.divmod(@map_size.x)
 				tile.position = Vector[position_x, position_y]
 				@map_tiles << tile
 			end
 			
 			layer += 1
 		end
-		
-		@map_tiles.sort!
 		
 		# Set up camera crew
 		@camera = Camera.new
@@ -120,10 +184,10 @@ class Map < Element
 	
 	def collides?(position)
 		# Check boundary collision
-		return true unless Rect.new(Vector[0, 0], @size).include?(position)
+		return true unless Rect.new(Vector[0, 0], @map_size).include?(position)
 		
 		# Check tile collision (using special collision layer)
-		index = position.x + @size.x * position.y
+		index = position.x + @map_size.x * position.y
 		return true if @collisions[index]
 		
 		# Check entity collision
@@ -158,24 +222,28 @@ class Map < Element
 	# Returns a sorted list of all Tiles, Entities, Characters, etc
 	# for rendering
 	def all_tiles
-		# @entities.sort!
+		@entities.sort!
 		
 		all_tiles = @map_tiles + @entities
 		all_tiles
 	end
 	
-	def draw(renderer, rect)
+	def draw(renderer, position)
 		# Set up camera viewport
 		camera_offset = (@tile_size * @camera.center -
-			(rect.size - @tile_size) / 2).round
-		camera_rect = Rect.new(camera_offset, rect.size)
+			(@rect.size - @tile_size) / 2).round
+		camera_rect = Rect.new(camera_offset, @rect.size)
 		
-		boundary_rect = Rect.new(Vector[0, 0], @tile_size * @size)
+		boundary_rect = Rect.new(Vector[0, 0], @tile_size * @map_size)
 		camera_rect = camera_rect.constrain(boundary_rect)
+		
+		# TODO
+		# Most of the CPU is spent in this loop
+		# Either implement some of this in C or find a way around this.
 		
 		all_tiles.each do |tile|
 			tile_rect = Rect.new((@tile_size * tile.position).round,
-				tile.sprite.size)
+				tile.sprite.clip_rect.size)
 			
 			# Don't draw entity if not in the bounding box of the screen
 			next unless camera_rect.overlaps?(tile_rect)

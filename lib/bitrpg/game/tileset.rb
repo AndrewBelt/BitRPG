@@ -17,13 +17,13 @@ class Tileset
 	class << self
 		attr_reader :all
 		
-		def from_yaml(filename)
+		def load_yaml(filename)
 			path = File.realpath(filename)
 			data = YAML.load_file(path)
-			from_data(data)
+			load(data)
 		end
 		
-		def from_data(data)
+		def load(data)
 			data.each do |name, tileset_data|
 				@all[name] = Tileset.new(tileset_data)
 			end

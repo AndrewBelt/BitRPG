@@ -33,4 +33,8 @@ class Rect
 			boundary.size - @size)
 		Rect.new(position, @size)
 	end
+	
+	def contract(vec)
+		Rect.new(@position + vec, @size - vec * 2)
+	end
 end

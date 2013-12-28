@@ -8,17 +8,18 @@ class << Game
 	attr_accessor :framerate # Number
 	attr_reader :last_framerate # Number
 	attr_accessor :root_element # Element
+	attr_reader :size # Vector
 	
 	# Must be called before any methods of Game are used
-	def from_yaml(filename)
+	def load_yaml(filename)
 		path = File.realpath(filename)
 		data = YAML.load_file(path)
-		from_data(data)
+		load_hash(data)
 	end
 	
-	def from_data(data)
+	def load_hash(data)
 		window_conf = data.fetch('window')
-		@screen_size = Vector[window_conf.fetch('width'),
+		@size = Vector[window_conf.fetch('width'),
 			window_conf.fetch('height')]
 		@zoom = window_conf.fetch('zoom', 1)
 		@framerate = window_conf.fetch('framerate', 0)
@@ -26,7 +27,7 @@ class << Game
 		
 		@debug = !!data['debug']
 		
-		window_size = @screen_size * @zoom
+		window_size = @size * @zoom
 		@window = Window.new(title, window_size)
 		@window.renderer.zoom = @zoom
 	end
@@ -104,8 +105,7 @@ private
 		
 		if @root_element
 			# Draw root_element to screen
-			screen_rect = Rect.new(Vector[0, 0], @screen_size)
-			@root_element.draw(renderer, screen_rect)
+			@root_element.draw(renderer, Vector[0, 0])
 		end
 		
 		renderer.present

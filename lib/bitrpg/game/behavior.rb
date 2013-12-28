@@ -20,7 +20,7 @@ class PlayerBehavior < Behavior
 		
 		@last_direction = @next_direction
 		@next_direction = nil
-		@last_direction
+		@last_direction unless Game.script_running?
 	end
 	
 	def handle_event(event)
