@@ -62,6 +62,7 @@ Init_bitrpg_native()
 	Init_bitrpg_graphics();
 	Init_bitrpg_event();
 	Init_bitrpg_gui();
+	Init_bitrpg_audio();
 	
 	// Initialize SDL
 	SDL_Init(SDL_INIT_VIDEO);

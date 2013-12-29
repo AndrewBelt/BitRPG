@@ -19,6 +19,7 @@ void Init_bitrpg_native();
 void Init_bitrpg_graphics();
 void Init_bitrpg_event();
 void Init_bitrpg_gui();
+void Init_bitrpg_audio();
 
 // Classes
 extern VALUE cWindow;
@@ -28,5 +29,7 @@ extern VALUE cSurface;
 extern VALUE cEvent;
 extern VALUE mKeyboard;
 extern VALUE cFont;
+extern VALUE cSound;
+extern VALUE cMusic;
 
 #endif

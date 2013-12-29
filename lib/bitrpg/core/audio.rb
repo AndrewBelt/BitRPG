@@ -1,10 +1,6 @@
-class Audio
+
+class Sound
 end
 
-
-class Music < Audio
-end
-
-
-class Sound < Audio
+class Music
 end
