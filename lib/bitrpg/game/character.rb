@@ -1,12 +1,9 @@
 require 'thread'
 require 'bitrpg/game/constants'
 require 'bitrpg/game/entity'
-require 'bitrpg/game/behavior'
 
 # An entity with the ability to walk
 class Character < Entity
-	attr_accessor :behavior
-	
 	def initialize(*args)
 		super
 		
@@ -17,7 +14,31 @@ class Character < Entity
 	
 	# Walking
 	
+	def walk(direction)
+		# TODO
+		# Face direction
+		
+		p self.animation
+		
+		if direction.x < 0
+			self.animation = 'left'
+		elsif direction.x > 0
+			self.animation = 'right'
+		elsif direction.y < 0
+			self.animation = 'up'
+		elsif direction.y > 0
+			self.animation = 'down'
+		else
+			self.animation = 'default'
+		end
+		
+		velocity = direction / @type.slowness.to_f
+		@position += velocity
+	end
+	
 	def step
+		super
+		return
 		
 		# Override the next direction if the behavior has one
 		if @behavior and !@curr_direction
@@ -82,32 +103,8 @@ class Character < Entity
 		super
 	end
 	
-	def walk(direction, blocking=true)
-		@next_direction = direction
-		
-		if blocking
-			@walk_mutex.synchronize do
-				@walk_resource.wait(@walk_mutex)
-			end
-		end
-		
-		nil
-	end
-	
-	def walking?
-		@curr_direction
-	end
-	
 	def face_position
-		@position + DIRECTIONS[@face_direction]
-	end
-	
-private
-	
-	def finish_walk
-		@walk_mutex.synchronize do
-			@walk_resource.broadcast
-		end
+		@position.round + DIRECTIONS[@face_direction]
 	end
 end
 

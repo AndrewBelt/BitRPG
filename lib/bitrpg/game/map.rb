@@ -17,7 +17,7 @@ class Map < Element
 	attr_reader :map_tiles # [Tile]
 	attr_reader :entities # [Tile]
 	
-	attr_reader :player # Character
+	attr_accessor :player # Character
 	attr_accessor :camera # Camera
 	
 	def initialize
@@ -35,7 +35,7 @@ class Map < Element
 		# TODO
 		# If no extension is given, scan for yaml first, then TMX
 		
-		path = File.realpath(name, 'maps')
+		path = File.realpath(name)
 		# load_yaml(path)
 		load_tmx(path)
 	end
@@ -207,14 +207,6 @@ class Map < Element
 	
 	# Helper methods
 	
-	def player=(player)
-		if player
-			player.behavior = PlayerBehavior.new
-		end
-		
-		@player = player
-	end
-	
 	def follow(entity)
 		@camera = FollowCamera.new(entity)
 	end
@@ -256,11 +248,6 @@ class Map < Element
 		# Disable controls if the script thread is active
 		return false if Game.script_running?
 		
-		if @player
-			# Assume that the player's behavior is a PlayerBehavior
-			return true if @player.behavior.handle_event(event)
-		end
-		
 		case event.type
 		when :key_down
 			if event.key == :space
@@ -272,6 +259,17 @@ class Map < Element
 	end
 	
 	def step
+		# Step the player
+		if @player and !Game.script_running?
+			held = Keyboard.held
+			direction = Vector[0, 0]
+			direction += Vector[1, 0] if held.include?(:right)
+			direction += Vector[-1, 0] if held.include?(:left)
+			direction += Vector[0, 1] if held.include?(:down)
+			direction += Vector[0, -1] if held.include?(:up)
+			@player.walk(direction) if direction != Vector[0, 0]
+		end
+		
 		# Step the frames of the elements
 		@entities.each do |entity|
 			entity.step
@@ -281,7 +279,7 @@ class Map < Element
 private
 	
 	def try_action
-		if @player and !@player.walking?
+		if @player
 			face_position = @player.face_position
 			face_entity = pick(face_position).find {|e| e.action? }
 			return unless face_entity

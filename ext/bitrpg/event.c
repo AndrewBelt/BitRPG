@@ -55,6 +55,7 @@ event_each(VALUE self)
 	return Qnil;
 }
 
+/*
 VALUE
 keyboard_held(VALUE self, VALUE key_sym)
 {
@@ -66,6 +67,31 @@ keyboard_held(VALUE self, VALUE key_sym)
 	
 	const Uint8 *state = SDL_GetKeyboardState(NULL);
 	return state[FIX2INT(scan_code)] ? Qtrue : Qfalse;
+}
+*/
+
+static const Uint8 *keyboard_state;
+
+static int
+keyboard_held_each(VALUE key, VALUE val, VALUE held_keys)
+{
+	if (keyboard_state[FIX2INT(key)])
+	{
+		rb_ary_push(held_keys, val);
+	}
+	
+	return ST_CONTINUE;
+}
+
+VALUE
+keyboard_held(VALUE self)
+{
+	VALUE scan_codes = rb_iv_get(mKeyboard, "@scan_codes");
+	keyboard_state = SDL_GetKeyboardState(NULL);
+	
+	VALUE held_keys = rb_ary_new();
+	rb_hash_foreach(scan_codes, keyboard_held_each, held_keys);
+	return held_keys;
 }
 
 void
@@ -91,7 +117,7 @@ Init_bitrpg_event()
 	
 	mKeyboard = rb_define_module("Keyboard");
 	
-	rb_define_singleton_method(mKeyboard, "held?", keyboard_held, 1);
+	rb_define_singleton_method(mKeyboard, "held", keyboard_held, 0);
 	
 	VALUE scan_codes = rb_hash_new();
 	#define SCAN_CODE(scan_code, symbol) \

@@ -20,10 +20,6 @@ MAP_SCREEN = Container.new
 MAP_SCREEN.rect.size = Game.size
 MAP_SCREEN.add(MAP)
 
-# TODO
-# Figure out a better font management scheme
-Font.default = Font.new('fonts/ReturnOfGanon.ttf', 16)
-
 # The REPL thread
 require 'bitrpg/core/irb'
 repl_thread = Thread.new do

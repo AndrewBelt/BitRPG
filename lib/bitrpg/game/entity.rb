@@ -31,14 +31,14 @@ class Entity < Tile
 	
 	# Position methods
 	
-	def position
-		super + @offset
-	end
+	# def position
+	# 	super + @offset
+	# end
 	
-	def position=(position)
-		super
-		@offset = Vector[0, 0]
-	end
+	# def position=(position)
+	# 	super
+	# 	@offset = Vector[0, 0]
+	# end
 	
 	def hit?(position)
 		@position == position
