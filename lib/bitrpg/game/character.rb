@@ -8,6 +8,7 @@ class Character < Entity
 		super
 		
 		@face_direction = :down
+		@next_direction = nil
 		@walk_mutex = Mutex.new
 		@walk_resource = ConditionVariable.new
 	end
@@ -15,35 +16,38 @@ class Character < Entity
 	# Walking
 	
 	def walk(direction)
-		# TODO
 		# Face direction
-		
-		p self.animation
-		
-		if direction.x < 0
-			self.animation = 'left'
-		elsif direction.x > 0
-			self.animation = 'right'
-		elsif direction.y < 0
-			self.animation = 'up'
+		if direction.y < 0
+			@next_direction = :up
 		elsif direction.y > 0
-			self.animation = 'down'
-		else
-			self.animation = 'default'
+			@next_direction = :down
+		elsif direction.x < 0
+			@next_direction = :left
+		elsif direction.x > 0
+			@next_direction = :right
 		end
 		
-		velocity = direction / @type.slowness.to_f
+		# Move character
+		velocity = direction.normalize / @type.slowness.to_f
 		@position += velocity
 	end
 	
 	def step
+		if MAP.collides?(Vector[@position.x.floor, @position.y.round])
+			@position = Vector[@position.x.floor + 1, @position.y]
+		end
+		
+		# Refresh animation
+		if @next_direction
+			self.animation = @next_direction.to_s
+			play
+		else
+			stop
+		end
+		@next_direction = nil
+		
 		super
 		return
-		
-		# Override the next direction if the behavior has one
-		if @behavior and !@curr_direction
-			@next_direction ||= @behavior.next_direction
-		end
 		
 		# Potentially begin walking
 		if !@curr_direction and @next_direction

@@ -70,6 +70,14 @@ class Vector
 		map(&:round)
 	end
 	
+	def norm
+		Math.hypot(@x, @y)
+	end
+	
+	def normalize
+		self / norm
+	end
+	
 	def constrain(top_left, bottom_right)
 		x = @x.constrain(top_left.x, bottom_right.x)
 		y = @y.constrain(top_left.y, bottom_right.y)

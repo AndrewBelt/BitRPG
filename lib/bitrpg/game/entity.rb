@@ -31,15 +31,6 @@ class Entity < Tile
 	
 	# Position methods
 	
-	# def position
-	# 	super + @offset
-	# end
-	
-	# def position=(position)
-	# 	super
-	# 	@offset = Vector[0, 0]
-	# end
-	
 	def hit?(position)
 		@position == position
 		
@@ -55,8 +46,9 @@ class Entity < Tile
 	
 	def animation=(name)
 		if @animation != name
-			# Reset the animation
 			@frames = @type.animations.fetch(name)
+			
+			# Rewind if a different animation is requested
 			rewind
 		end
 		
@@ -65,12 +57,10 @@ class Entity < Tile
 	
 	def play
 		@animating = true
-		@delay_frame = 0
 	end
 	
 	def pause
 		@animating = false
-		@delay_frame = 0
 	end
 	
 	def rewind
